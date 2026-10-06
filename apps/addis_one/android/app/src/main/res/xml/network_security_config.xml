@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Network security policy.
+
+  Cleartext HTTP is DENIED by default. It is permitted only for the specific
+  development hosts below, so a production build talking to a real API cannot
+  silently downgrade to plaintext and expose a session token on the wire.
+
+  Adding a development machine means adding one <domain> entry here. Note that
+  Android does not support CIDR ranges, so each IP must be listed explicitly —
+  and a Wi-Fi reconnect that changes the machine's IP needs a new entry.
+-->
+<network-security-config>
+    <base-config cleartextTrafficPermitted="false">
+        <trust-anchors>
+            <certificates src="system" />
+        </trust-anchors>
+    </base-config>
+
+    <domain-config cleartextTrafficPermitted="true">
+        <!-- Android emulator's alias for the host machine. -->
+        <domain includeSubdomains="false">10.0.2.2</domain>
+        <!-- Genymotion equivalent. -->
+        <domain includeSubdomains="false">10.0.3.2</domain>
+        <!-- Loopback, for `adb reverse tcp:3000 tcp:3000` over USB. -->
+        <domain includeSubdomains="false">localhost</domain>
+        <domain includeSubdomains="false">127.0.0.1</domain>
+        <!-- Development machine on the local network (Wi-Fi). -->
+        <!-- These change when the router hands out a new address. 192.168.5.178
+             is the current Wi-Fi address of this machine. Cleartext is denied to
+             everything not listed here, so a stale entry fails loudly (no
+             requests) rather than leaking a token in plaintext. -->
+        <domain includeSubdomains="false">192.168.5.178</domain>
+        <domain includeSubdomains="false">192.168.7.61</domain>
+        <domain includeSubdomains="false">192.168.13.10</domain>
+        <domain includeSubdomains="false">10.168.202.175</domain>
+    </domain-config>
+</network-security-config>

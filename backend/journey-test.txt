@@ -1,0 +1,23 @@
+﻿=== journey flow test @ 2026-10-02T13:16:48.7787576+05:30 ===
+--- sign in (+251911000777) ---
+request_otp={"sent":true}
+code=687541
+signed_in=True
+--- GET /stops?q=bole ---
+found=2 first=Bole/ቦሌ
+--- GET /stops?q=merk ---
+found=1 name=Merkato
+--- POST /journeys/plan  Piazza -> Bole ---
+journeys=3
+  id=transfer-R-3->R-14@MER legs=R-3 + R-14 fare=3820 discount=580 dur=1358s transfers=1 freshness=ESTIMATED
+      seq=0 R-3 Piazza -> Merkato fare=1500
+      seq=1 R-14 Merkato -> Bole fare=2320
+  id=transfer-R-3->R-7@DGS legs=R-3 + R-7 fare=4108 discount=652 dur=1555s transfers=1 freshness=ESTIMATED
+      seq=0 R-3 Piazza -> Derg Square fare=1500
+      seq=1 R-7 Derg Square -> Bole fare=2608
+  id=transfer-R-12->R-7@MEX legs=R-12 + R-7 fare=4258 discount=502 dur=1554s transfers=1 freshness=ESTIMATED
+      seq=0 R-12 Piazza -> Mexico fare=2250
+      seq=1 R-7 Mexico -> Bole fare=2008
+check: legs sum to total (3820), saving=580
+check: legs sum to total (4108), saving=652
+check: legs sum to total (4258), saving=502

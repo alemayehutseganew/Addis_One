@@ -1,0 +1,423 @@
+<!DOCTYPE html>
+<!--
+  Addis One — Operations Dashboard.
+
+  A single self-contained file, served by the API at /dashboard.
+
+  No build step and no CDN on purpose. This is a reporting surface for a bureau
+  that will run on office hardware, often behind a restrictive proxy: every
+  external script is one more thing that can be blocked, and a dashboard that
+  renders blank because a CDN was unreachable is worse than no dashboard. The
+  charts are hand-drawn SVG, which is also why they cost nothing to load.
+
+  The page holds no data of its own. Everything on screen came from a
+  /dashboard/* call, so signing out genuinely removes it.
+-->
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<!--
+  Stops the page being framed or embedded elsewhere, which would let a
+  clickjacking page overlay a fake login box on top of this one.
+-->
+<meta name="referrer" content="same-origin">
+<!--
+  Inline SVG favicon: an empty /favicon.ico request is logged as a 404 by every
+  browser by default, and a console full of spurious errors hides a real one.
+  Data URI, so it still costs no request and needs no extra file.
+-->
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%230F8B4D'/%3E%3Ctext x='16' y='22' font-family='Segoe UI,sans-serif' font-size='14' font-weight='bold' fill='%23fff' text-anchor='middle'%3EAO%3C/text%3E%3C/svg%3E">
+<title>Addis One — Operations Dashboard</title>
+<style>
+/*
+  Brand palette mirrors apps/passenger/lib/app/theme.dart. Green/yellow/red are
+  the Ethiopian flag colours, used as accents rather than large fills, so the
+  screen stays legible in a bright office and on a projector.
+*/
+:root {
+  --green:      #0F8B4D;
+  --green-dark: #0A6B3B;
+  --green-light:#E6F4EC;
+  --yellow:     #F2C230;
+  --yellow-light:#FEF7E0;
+  --red:        #C62828;
+  --red-light:  #FDECEC;
+  --blue:       #1D6FE0;
+  --ink:        #14201C;
+  --ink-muted:  #5B6B65;
+  --surface:    #FFFFFF;
+  --background: #F6F8F7;
+  --divider:    #E3E9E6;
+  --radius:     14px;
+  --radius-sm:  8px;
+}
+
+* { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  font-family: "Segoe UI", system-ui, -apple-system, sans-serif;
+  /* Ethiopic glyphs have tall ascenders; below 1.45 they clip. */
+  line-height: 1.5;
+  color: var(--ink);
+  background: var(--background);
+}
+
+button { font: inherit; cursor: pointer; }
+table { border-collapse: collapse; width: 100%; }
+
+/* ── Sign in ────────────────────────────────────────────────────────────── */
+.login-wrap {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+}
+.login-card {
+  background: var(--surface);
+  border: 1px solid var(--divider);
+  border-radius: var(--radius);
+  padding: 32px;
+  width: 100%;
+  max-width: 420px;
+}
+.login-card h1 { margin: 0 0 4px; font-size: 22px; }
+.login-card p.sub { margin: 0 0 24px; color: var(--ink-muted); font-size: 14px; }
+
+label { display: block; font-size: 13px; font-weight: 600; margin-bottom: 6px; }
+input, select {
+  width: 100%;
+  padding: 12px 14px;
+  font: inherit;
+  border: 1px solid var(--divider);
+  border-radius: var(--radius-sm);
+  background: var(--surface);
+  color: var(--ink);
+}
+input:focus, select:focus {
+  outline: none;
+  border-color: var(--green);
+  box-shadow: 0 0 0 3px var(--green-light);
+}
+.field { margin-bottom: 16px; }
+
+.btn {
+  width: 100%;
+  padding: 13px;
+  border: 0;
+  border-radius: var(--radius-sm);
+  background: var(--green);
+  color: #fff;
+  font-weight: 600;
+}
+.btn:hover:not(:disabled) { background: var(--green-dark); }
+.btn:disabled { opacity: .55; cursor: not-allowed; }
+.btn.ghost {
+  background: transparent;
+  color: var(--green);
+  border: 1px solid var(--green);
+}
+.btn.small { width: auto; padding: 8px 14px; font-size: 13px; }
+
+/* Development-only sign-in. Deliberately recessive: outlined rather than filled,
+   so the verification-code path below it remains the obvious primary action and
+   the shortcut cannot be mistaken for the normal flow. */
+#dev-login-row { margin-top: 18px; padding-top: 16px; border-top: 1px dashed var(--line, #d9ded8); }
+.btn-quiet {
+  background: transparent;
+  color: var(--green);
+  border: 1px solid var(--green);
+  font-weight: 500;
+}
+.btn-quiet:hover:not(:disabled) { background: rgba(0, 106, 77, .06); }
+.hint-warn { color: #8a5a00; }
+
+.msg { margin-top: 14px; font-size: 13px; padding: 10px 12px; border-radius: var(--radius-sm); }
+
+/* ── Application shell ──────────────────────────────────────────────────── */
+.app { display: none; }
+.app.ready { display: block; }
+
+header.top {
+  background: var(--surface);
+  border-bottom: 1px solid var(--divider);
+  padding: 16px 24px;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  flex-wrap: wrap;
+  position: sticky;
+  top: 0;
+  z-index: 10;
+}
+.brand { display: flex; align-items: center; gap: 10px; }
+.brand .dot {
+  width: 30px; height: 30px; border-radius: 8px;
+  background: var(--green); color: #fff;
+  display: grid; place-items: center; font-weight: 700; font-size: 13px;
+}
+.brand h1 { margin: 0; font-size: 17px; }
+.brand .who { font-size: 12px; color: var(--ink-muted); }
+.spacer { flex: 1; }
+
+.filters { display: flex; gap: 10px; align-items: flex-end; flex-wrap: wrap; }
+.filters .field { margin: 0; }
+.filters input, .filters select { padding: 8px 10px; font-size: 13px; }
+.filters label { font-size: 11px; text-transform: uppercase; letter-spacing: .04em; color: var(--ink-muted); }
+
+nav.tabs {
+  background: var(--surface);
+  border-bottom: 1px solid var(--divider);
+  padding: 0 24px;
+  display: flex;
+  gap: 4px;
+  overflow-x: auto;
+}
+nav.tabs button {
+  border: 0; background: none; padding: 14px 14px;
+  color: var(--ink-muted); font-weight: 600; font-size: 14px;
+  border-bottom: 2px solid transparent; white-space: nowrap;
+}
+nav.tabs button:hover { color: var(--ink); }
+nav.tabs button.active { color: var(--green); border-bottom-color: var(--green); }
+
+main { padding: 24px; max-width: 1400px; margin: 0 auto; }
+.panel { display: none; }
+.panel.active { display: block; }
+
+h2.section { font-size: 15px; margin: 0 0 14px; text-transform: uppercase; letter-spacing: .05em; color: var(--ink-muted); }
+
+.cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); gap: 14px; margin-bottom: 24px; }
+.card {
+  background: var(--surface);
+  border: 1px solid var(--divider);
+  border-radius: var(--radius);
+  padding: 18px;
+}
+.card .label { font-size: 12px; color: var(--ink-muted); text-transform: uppercase; letter-spacing: .04em; }
+.card .value { font-size: 27px; font-weight: 700; margin-top: 6px; line-height: 1.2; }
+.card .sub { font-size: 12px; color: var(--ink-muted); margin-top: 4px; }
+.delta { font-size: 12px; font-weight: 600; margin-top: 6px; display: inline-block; padding: 2px 7px; border-radius: 999px; }
+.delta.up   { background: var(--green-light); color: var(--green-dark); }
+.delta.down { background: var(--red-light);   color: var(--red); }
+.delta.flat { background: var(--background);   color: var(--ink-muted); }
+
+.grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 16px; }
+@media (max-width: 900px) { .grid2 { grid-template-columns: 1fr; } }
+
+.box {
+  background: var(--surface);
+  border: 1px solid var(--divider);
+  border-radius: var(--radius);
+  padding: 18px;
+  margin-bottom: 16px;
+}
+.box h3 { margin: 0 0 14px; font-size: 15px; }
+
+table th, table td { padding: 9px 10px; text-align: left; font-size: 13px; border-bottom: 1px solid var(--divider); }
+table th { color: var(--ink-muted); font-weight: 600; text-transform: uppercase; font-size: 11px; letter-spacing: .04em; }
+table td.num, table th.num { text-align: right; font-variant-numeric: tabular-nums; }
+table tbody tr:last-child td { border-bottom: 0; }
+.table-wrap { overflow-x: auto; }
+
+.tag {
+  display: inline-block; padding: 2px 9px; border-radius: 999px;
+  font-size: 11px; font-weight: 600; letter-spacing: .02em;
+}
+.tag.green  { background: var(--green-light);  color: var(--green-dark); }
+.tag.yellow { background: var(--yellow-light); color: #7A5A00; }
+.tag.red    { background: var(--red-light);    color: var(--red); }
+.tag.grey   { background: var(--background);   color: var(--ink-muted); }
+.tag.blue   { background: #E8F1FD;              color: var(--blue); }
+
+
+@media (max-width: 640px) {
+  .bar-row { grid-template-columns: 100px 1fr 70px; font-size: 12px; }
+  main { padding: 16px; }
+  .card .value { font-size: 23px; }
+}
+/* ── Empty and error states ─────────────────────────────────────────────── */
+.state { padding: 28px; text-align: center; color: var(--ink-muted); font-size: 14px; }
+.state.error { color: var(--red); }
+
+/* ── Horizontal bar lists ───────────────────────────────────────────────── */
+.bars { display: flex; flex-direction: column; gap: 10px; }
+.bar-row { display: grid; grid-template-columns: 150px 1fr 92px; align-items: center; gap: 10px; font-size: 13px; }
+/* The track is tinted rather than white so an empty bar still reads as a bar;
+   on a white card an untinted track simply disappears. */
+.bar-track { background: var(--green-light); border-radius: 999px; height: 9px; overflow: hidden; }
+.bar-fill { background: var(--green); height: 100%; border-radius: 999px; }
+.bar-fill.blue { background: var(--blue); }
+.bar-val { text-align: right; font-variant-numeric: tabular-nums; color: var(--ink-muted); }
+
+/* ── Chart legend ───────────────────────────────────────────────────────── */
+.legend { display: flex; gap: 16px; font-size: 12px; color: var(--ink-muted); margin-top: 10px; flex-wrap: wrap; }
+.legend i { display: inline-block; width: 10px; height: 10px; border-radius: 2px; margin-right: 5px; vertical-align: -1px; }
+/* Each note is its own flex item. Without this the spans collapse together
+   into one unreadable sentence. */
+.legend span { display: inline-flex; align-items: center; gap: 6px; }
+
+.pager { display: flex; align-items: center; gap: 10px; justify-content: flex-end; margin-top: 12px; font-size: 13px; color: var(--ink-muted); }
+.foot { text-align: center; padding: 20px; font-size: 12px; color: var(--ink-muted); }
+.hint { font-size: 12px; color: var(--ink-muted); margin-top: 10px; }
+
+/* ── Administrative console ────────────────────────────────────────────────
+   The resource switcher is its own tab strip rather than a re-use of nav.tabs:
+   it sits inside a panel and selects a dataset, not a top-level page, so
+   styling it like the main navigation would make the two look equivalent. */
+div.tabs { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 14px; }
+div.tabs .tab {
+  padding: 8px 16px; border: 1px solid var(--line); border-radius: 999px;
+  background: #fff; color: var(--ink-muted); cursor: pointer; font-size: 13px;
+  font-family: inherit;
+}
+div.tabs .tab:hover { border-color: var(--green); color: var(--ink); }
+div.tabs .tab.active { background: var(--green); border-color: var(--green); color: #fff; }
+
+.box-head {
+  display: flex; align-items: center; justify-content: space-between;
+  gap: 12px; flex-wrap: wrap; margin-bottom: 12px;
+}
+.box-head h3 { margin: 0; }
+
+.btn.primary { background: var(--green); color: #fff; }
+.btn.primary:hover:not(:disabled) { background: var(--green-dark); }
+
+.admin-form { border-top: 1px solid var(--line); padding-top: 14px; margin-top: 4px; }
+/* Two columns on a desktop office screen, one on a narrow window — an
+   eight-field form at one field per row pushes the Save button off-screen. */
+.form-grid {
+  display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 12px; margin-bottom: 14px;
+}
+.form-grid label {
+  display: flex; flex-direction: column; gap: 5px;
+  font-size: 12px; color: var(--ink-muted);
+}
+.form-grid input, .form-grid select, .form-grid textarea {
+  padding: 9px 10px; border: 1px solid var(--line); border-radius: 6px;
+  font: inherit; font-size: 14px; color: var(--ink); background: #fff; width: 100%;
+}
+.form-grid input:focus, .form-grid select:focus, .form-grid textarea:focus {
+  outline: 2px solid var(--green); outline-offset: 1px; border-color: var(--green);
+}
+.form-grid textarea { resize: vertical; }
+/* Marks a field the server will reject without. */
+.req { color: var(--red); }
+.form-actions { display: flex; align-items: center; gap: 14px; flex-wrap: wrap; }
+#admin-error { color: var(--red); }
+</style>
+</head>
+<body>
+
+<!-- ── Sign in ─────────────────────────────────────────────────────────────
+     One form, two steps. The same OTP endpoint a passenger uses; the server
+     decides whether the resulting account is staff, and this page simply
+     shows the 403 if it is not.
+-->
+<div class="login-wrap" id="login">
+  <div class="login-card">
+    <h1>Addis One</h1>
+    <p class="sub">Transport Bureau &amp; Operator Dashboard</p>
+
+    <div id="login-error" class="msg error" style="display:none"></div>
+
+    <div id="step-phone">
+      <div class="field">
+        <label for="phone">Staff mobile number</label>
+        <input id="phone" type="tel" placeholder="+251911000001" autocomplete="username" inputmode="tel">
+      </div>
+      <button class="btn" id="btn-send">Send verification code</button>
+      <p class="hint">
+        A six-digit code is sent to your mobile. In development it is also
+        written to the server log.
+      </p>
+
+      <!--
+        Dev-only shortcut. Hidden until the server confirms the route exists, so a
+        production build never offers a button that would only 404. Shown by
+        probing POST /auth/dev-login: a 404 means the flag is off, and the control
+        simply stays hidden rather than erroring.
+      -->
+      <div id="dev-login-row" style="display:none">
+        <button class="btn btn-quiet" id="btn-dev-login">Sign in without a code</button>
+        <p class="hint hint-warn">Development shortcut. Skips verification — do not use on a real deployment.</p>
+      </div>
+    </div>
+
+    <div id="step-code" style="display:none">
+      <div class="field">
+        <label for="code">Verification code</label>
+        <input id="code" type="text" placeholder="123456" inputmode="numeric" maxlength="6" autocomplete="one-time-code">
+      </div>
+      <button class="btn" id="btn-verify">Sign in</button>
+      <p class="hint"><a href="#" id="back-to-phone" style="color:var(--green)">Use a different number</a></p>
+    </div>
+  </div>
+</div>
+
+<!-- ── Dashboard ────────────────────────────────────────────────────────── -->
+<div class="app" id="app">
+  <header class="top">
+    <div class="brand">
+      <div class="dot">AO</div>
+      <div>
+        <h1>Addis One Operations</h1>
+        <div class="who" id="who">&nbsp;</div>
+      </div>
+    </div>
+    <div class="spacer"></div>
+
+    <div class="filters">
+      <div class="field">
+        <label for="from">From</label>
+        <input id="from" type="date">
+      </div>
+      <div class="field">
+        <label for="to">To</label>
+        <input id="to" type="date">
+      </div>
+      <div class="field">
+        <label for="preset">Range</label>
+        <select id="preset">
+          <option value="7">Last 7 days</option>
+          <option value="30" selected>Last 30 days</option>
+          <option value="90">Last 90 days</option>
+          <option value="365">Last 12 months</option>
+        </select>
+      </div>
+      <button class="btn small" id="btn-refresh">Refresh</button>
+      <button class="btn small ghost" id="btn-signout">Sign out</button>
+    </div>
+  </header>
+
+  <nav class="tabs" id="tabs">
+    <button data-panel="overview" class="active">Overview</button>
+    <button data-panel="revenue">Revenue</button>
+    <button data-panel="operations">Operations</button>
+    <button data-panel="network">Network</button>
+    <button data-panel="fares">Fare rules</button>
+    <button data-panel="passengers">Passengers</button>
+    <button data-panel="database">Database</button>
+    <button data-panel="manage">Manage</button>
+  </nav>
+
+  <main>
+    <div class="panel active" id="panel-overview"><div class="state">Loading…</div></div>
+    <div class="panel" id="panel-revenue"><div class="state">Loading…</div></div>
+    <div class="panel" id="panel-operations"><div class="state">Loading…</div></div>
+    <div class="panel" id="panel-network"><div class="state">Loading…</div></div>
+    <div class="panel" id="panel-fares"><div class="state">Loading…</div></div>
+    <div class="panel" id="panel-passengers"><div class="state">Loading…</div></div>
+    <div class="panel" id="panel-database"><div class="state">Loading…</div></div>
+    <div class="panel" id="panel-manage"><div class="state">Loading…</div></div>
+  </main>
+
+  <div class="foot" id="foot"></div>
+</div>
+
+<script src="./dashboard.js"></script>
+</body>
+</html>

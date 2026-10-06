@@ -1,0 +1,37 @@
+﻿=== purchase flow @ 2026-10-02T14:35:21.5382908+05:30 ===
+--- sign in (+251911555444) ---
+request_otp={"sent":true}
+code=752132
+signed_in=True user=
+--- plan Piazza -> Bole ---
+options=3 cheapest=3820 saving=580
+--- stored quote ---
+journeyId=c5d33eae fare=3820 rule=ZONE-1-2 v1 transferDiscount=580
+--- POST /payments (exact fare) ---
+status=CONFIRMED providerMode=MOCK
+replay=False
+ticket=TKT-MUQQMKT2-81282A
+ticketFareRuleVersion=1
+qr={"t":"81282ae5-c040-4e50-8779-0715c081a933","c":"dc48eadb-5fee-4f3f-8d6d-332f02d7e355","i":179093192...
+--- I2: replay same idempotency key ---
+samePayment=True
+idempotentReplay=True
+sameTicket=True
+sameQr=True
+--- revenue protection: claim 1 fil ---
+tamper_rejected_status=409
+--- I1: ticket for an unknown payment ---
+unknown_ticket_status=404
+--- GET /tickets/mine ---
+count=2
+  TKT-MUQQMKT2-81282A status=TICKET_ISSUED mode=BUS ruleVersion=1 hasQr=True
+  TKT-MUQPM0CV-CCBDF9 status=TICKET_ISSUED mode=BUS ruleVersion=1 hasQr=True
+  qrPrefix={"t":"81282ae5-c040-4e50-8779-0715c081a933","c":"dc48eadb-5f...
+--- plan response shape ---
+  option0 journeyId=f262fd0f seq0=0 seq1=1
+  option1 journeyId=NULL seq0=0 seq1=1
+  option2 journeyId=NULL seq0=0 seq1=1
+check: top option is purchasable
+--- cross-user isolation ---
+other_user_ticket_count=0
+check: tickets are scoped to the authenticated user

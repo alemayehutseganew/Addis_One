@@ -1,0 +1,24 @@
+gradle-wrapper.jar
+/.gradle
+/captures/
+/gradlew
+/gradlew.bat
+/local.properties
+GeneratedPluginRegistrant.java
+.cxx/
+
+# Remember to never publicly share your keystore.
+# See https://flutter.dev/to/reference-keystore
+#
+# Losing the release key means you can never ship an update to an already
+# installed app: Android rejects an APK signed with a different key. Back this
+# file up somewhere durable, and inject it from a secret store in CI rather than
+# committing it. scripts/make-keystore.ps1 generates a local one.
+key.properties
+**/*.keystore
+**/*.jks
+
+# Build output
+**/build/
+*.apk
+*.aab

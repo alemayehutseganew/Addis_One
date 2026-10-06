@@ -1,0 +1,72 @@
+[31m[Nest] 54312  - [39m10/06/2026, 9:16:10 AM [31m  ERROR[39m [38;5;3m[ExceptionsHandler] [39m[31mNo payment adapter registered for provider BANK[39m
+PaymentProviderError: No payment adapter registered for provider BANK
+    at ProviderRegistry.get (C:\Users\alexo\Desktop\File\Code\AddisTransport\backend\dist\modules\payments\payment-provider.js:26:19)
+    at PaymentOrchestratorService.initiate (C:\Users\alexo\Desktop\File\Code\AddisTransport\backend\dist\modules\payments\payment-orchestrator.js:77:39)
+    at async PaymentsService.purchase (C:\Users\alexo\Desktop\File\Code\AddisTransport\backend\dist\modules\payments\payments.service.js:62:27)
+    at async PaymentsController.create (C:\Users\alexo\Desktop\File\Code\AddisTransport\backend\dist\modules\payments\payments.controller.js:59:24)
+    at async C:\Users\alexo\Desktop\File\Code\AddisTransport\backend\node_modules\@nestjs\core\router\router-execution-context.js:46:28
+    at async C:\Users\alexo\Desktop\File\Code\AddisTransport\backend\node_modules\@nestjs\core\router\router-proxy.js:9:17
+[31m[Nest] 54312  - [39m10/06/2026, 9:16:11 AM [31m  ERROR[39m [38;5;3m[ExceptionsHandler] [39m[31mNo payment adapter registered for provider BANK[39m
+PaymentProviderError: No payment adapter registered for provider BANK
+    at ProviderRegistry.get (C:\Users\alexo\Desktop\File\Code\AddisTransport\backend\dist\modules\payments\payment-provider.js:26:19)
+    at PaymentOrchestratorService.initiate (C:\Users\alexo\Desktop\File\Code\AddisTransport\backend\dist\modules\payments\payment-orchestrator.js:77:39)
+    at async PaymentsService.purchase (C:\Users\alexo\Desktop\File\Code\AddisTransport\backend\dist\modules\payments\payments.service.js:62:27)
+    at async PaymentsController.create (C:\Users\alexo\Desktop\File\Code\AddisTransport\backend\dist\modules\payments\payments.controller.js:59:24)
+    at async C:\Users\alexo\Desktop\File\Code\AddisTransport\backend\node_modules\@nestjs\core\router\router-execution-context.js:46:28
+    at async C:\Users\alexo\Desktop\File\Code\AddisTransport\backend\node_modules\@nestjs\core\router\router-proxy.js:9:17
+[31m[Nest] 54312  - [39m10/06/2026, 9:16:13 AM [31m  ERROR[39m [38;5;3m[ExceptionsHandler] [39m[31mNo payment adapter registered for provider BANK[39m
+PaymentProviderError: No payment adapter registered for provider BANK
+    at ProviderRegistry.get (C:\Users\alexo\Desktop\File\Code\AddisTransport\backend\dist\modules\payments\payment-provider.js:26:19)
+    at PaymentOrchestratorService.initiate (C:\Users\alexo\Desktop\File\Code\AddisTransport\backend\dist\modules\payments\payment-orchestrator.js:77:39)
+    at async PaymentsService.purchase (C:\Users\alexo\Desktop\File\Code\AddisTransport\backend\dist\modules\payments\payments.service.js:62:27)
+    at async PaymentsController.create (C:\Users\alexo\Desktop\File\Code\AddisTransport\backend\dist\modules\payments\payments.controller.js:59:24)
+    at async C:\Users\alexo\Desktop\File\Code\AddisTransport\backend\node_modules\@nestjs\core\router\router-execution-context.js:46:28
+    at async C:\Users\alexo\Desktop\File\Code\AddisTransport\backend\node_modules\@nestjs\core\router\router-proxy.js:9:17
+[31m[Nest] 54312  - [39m10/06/2026, 9:16:15 AM [31m  ERROR[39m [38;5;3m[ExceptionsHandler] [39m[31mNo payment adapter registered for provider BANK[39m
+PaymentProviderError: No payment adapter registered for provider BANK
+    at ProviderRegistry.get (C:\Users\alexo\Desktop\File\Code\AddisTransport\backend\dist\modules\payments\payment-provider.js:26:19)
+    at PaymentOrchestratorService.initiate (C:\Users\alexo\Desktop\File\Code\AddisTransport\backend\dist\modules\payments\payment-orchestrator.js:77:39)
+    at async PaymentsService.purchase (C:\Users\alexo\Desktop\File\Code\AddisTransport\backend\dist\modules\payments\payments.service.js:62:27)
+    at async PaymentsController.create (C:\Users\alexo\Desktop\File\Code\AddisTransport\backend\dist\modules\payments\payments.controller.js:59:24)
+    at async C:\Users\alexo\Desktop\File\Code\AddisTransport\backend\node_modules\@nestjs\core\router\router-execution-context.js:46:28
+    at async C:\Users\alexo\Desktop\File\Code\AddisTransport\backend\node_modules\@nestjs\core\router\router-proxy.js:9:17
+[31m[Nest] 54312  - [39m10/06/2026, 9:16:19 AM [31m  ERROR[39m [38;5;3m[ExceptionsHandler] [39m[31mNo payment adapter registered for provider BANK[39m
+PaymentProviderError: No payment adapter registered for provider BANK
+    at ProviderRegistry.get (C:\Users\alexo\Desktop\File\Code\AddisTransport\backend\dist\modules\payments\payment-provider.js:26:19)
+    at PaymentOrchestratorService.initiate (C:\Users\alexo\Desktop\File\Code\AddisTransport\backend\dist\modules\payments\payment-orchestrator.js:77:39)
+    at async PaymentsService.purchase (C:\Users\alexo\Desktop\File\Code\AddisTransport\backend\dist\modules\payments\payments.service.js:62:27)
+    at async PaymentsController.create (C:\Users\alexo\Desktop\File\Code\AddisTransport\backend\dist\modules\payments\payments.controller.js:59:24)
+    at async C:\Users\alexo\Desktop\File\Code\AddisTransport\backend\node_modules\@nestjs\core\router\router-execution-context.js:46:28
+    at async C:\Users\alexo\Desktop\File\Code\AddisTransport\backend\node_modules\@nestjs\core\router\router-proxy.js:9:17
+[31m[Nest] 54312  - [39m10/06/2026, 9:16:19 AM [31m  ERROR[39m [38;5;3m[ExceptionsHandler] [39m[31mNo payment adapter registered for provider BANK[39m
+PaymentProviderError: No payment adapter registered for provider BANK
+    at ProviderRegistry.get (C:\Users\alexo\Desktop\File\Code\AddisTransport\backend\dist\modules\payments\payment-provider.js:26:19)
+    at PaymentOrchestratorService.initiate (C:\Users\alexo\Desktop\File\Code\AddisTransport\backend\dist\modules\payments\payment-orchestrator.js:77:39)
+    at async PaymentsService.purchase (C:\Users\alexo\Desktop\File\Code\AddisTransport\backend\dist\modules\payments\payments.service.js:62:27)
+    at async PaymentsController.create (C:\Users\alexo\Desktop\File\Code\AddisTransport\backend\dist\modules\payments\payments.controller.js:59:24)
+    at async C:\Users\alexo\Desktop\File\Code\AddisTransport\backend\node_modules\@nestjs\core\router\router-execution-context.js:46:28
+    at async C:\Users\alexo\Desktop\File\Code\AddisTransport\backend\node_modules\@nestjs\core\router\router-proxy.js:9:17
+[31m[Nest] 54312  - [39m10/06/2026, 9:56:17 AM [31m  ERROR[39m [38;5;3m[ExceptionsHandler] [39m[31mNo payment adapter registered for provider BANK[39m
+PaymentProviderError: No payment adapter registered for provider BANK
+    at ProviderRegistry.get (C:\Users\alexo\Desktop\File\Code\AddisTransport\backend\dist\modules\payments\payment-provider.js:26:19)
+    at PaymentOrchestratorService.initiate (C:\Users\alexo\Desktop\File\Code\AddisTransport\backend\dist\modules\payments\payment-orchestrator.js:77:39)
+    at async PaymentsService.purchase (C:\Users\alexo\Desktop\File\Code\AddisTransport\backend\dist\modules\payments\payments.service.js:62:27)
+    at async PaymentsController.create (C:\Users\alexo\Desktop\File\Code\AddisTransport\backend\dist\modules\payments\payments.controller.js:59:24)
+    at async C:\Users\alexo\Desktop\File\Code\AddisTransport\backend\node_modules\@nestjs\core\router\router-execution-context.js:46:28
+    at async C:\Users\alexo\Desktop\File\Code\AddisTransport\backend\node_modules\@nestjs\core\router\router-proxy.js:9:17
+[31m[Nest] 54312  - [39m10/06/2026, 9:56:19 AM [31m  ERROR[39m [38;5;3m[ExceptionsHandler] [39m[31mNo payment adapter registered for provider BANK[39m
+PaymentProviderError: No payment adapter registered for provider BANK
+    at ProviderRegistry.get (C:\Users\alexo\Desktop\File\Code\AddisTransport\backend\dist\modules\payments\payment-provider.js:26:19)
+    at PaymentOrchestratorService.initiate (C:\Users\alexo\Desktop\File\Code\AddisTransport\backend\dist\modules\payments\payment-orchestrator.js:77:39)
+    at async PaymentsService.purchase (C:\Users\alexo\Desktop\File\Code\AddisTransport\backend\dist\modules\payments\payments.service.js:62:27)
+    at async PaymentsController.create (C:\Users\alexo\Desktop\File\Code\AddisTransport\backend\dist\modules\payments\payments.controller.js:59:24)
+    at async C:\Users\alexo\Desktop\File\Code\AddisTransport\backend\node_modules\@nestjs\core\router\router-execution-context.js:46:28
+    at async C:\Users\alexo\Desktop\File\Code\AddisTransport\backend\node_modules\@nestjs\core\router\router-proxy.js:9:17
+[31m[Nest] 54312  - [39m10/06/2026, 9:56:28 AM [31m  ERROR[39m [38;5;3m[ExceptionsHandler] [39m[31mNo payment adapter registered for provider BANK[39m
+PaymentProviderError: No payment adapter registered for provider BANK
+    at ProviderRegistry.get (C:\Users\alexo\Desktop\File\Code\AddisTransport\backend\dist\modules\payments\payment-provider.js:26:19)
+    at PaymentOrchestratorService.initiate (C:\Users\alexo\Desktop\File\Code\AddisTransport\backend\dist\modules\payments\payment-orchestrator.js:77:39)
+    at async PaymentsService.purchase (C:\Users\alexo\Desktop\File\Code\AddisTransport\backend\dist\modules\payments\payments.service.js:62:27)
+    at async PaymentsController.create (C:\Users\alexo\Desktop\File\Code\AddisTransport\backend\dist\modules\payments\payments.controller.js:59:24)
+    at async C:\Users\alexo\Desktop\File\Code\AddisTransport\backend\node_modules\@nestjs\core\router\router-execution-context.js:46:28
+    at async C:\Users\alexo\Desktop\File\Code\AddisTransport\backend\node_modules\@nestjs\core\router\router-proxy.js:9:17

@@ -1,0 +1,2 @@
+﻿cleared 3 otp challenges
+exit=0

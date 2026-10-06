@@ -1,0 +1,43 @@
+﻿=== addis_one install (release) @ 2026-10-06T09:37:11.8187858+05:30 ===
+apk=C:\Users\alexo\Desktop\File\Code\AddisTransport\apps\addis_one\build\app\outputs\flutter-apk\app-release.apk
+apk_mb=33.62
+--- signature verify ---
+Verifies
+Verified using v1 scheme (JAR signing): false
+Verified using v2 scheme (APK Signature Scheme v2): true
+Verified using v3 scheme (APK Signature Scheme v3): false
+Verified using v3.1 scheme (APK Signature Scheme v3.1): false
+Verified using v4 scheme (APK Signature Scheme v4): false
+Verified for SourceStamp: false
+Number of signers: 1
+Signer #1 certificate DN: CN=Addis One, OU=Transport Bureau, O=Addis One, L=Addis Ababa, C=ET
+Signer #1 certificate SHA-256 digest: 5a24d64804dab7d9fb5b12e0c79ef83b2a8b1273292638313726e91e619b1a0b
+Signer #1 certificate SHA-1 digest: 0282cf447c2f4b6c4a943b2a9df394f86a146f4f
+Signer #1 certificate MD5 digest: 43fa9d4938c029891b384e3dac5389d3
+Signer #1 key algorithm: RSA
+Signer #1 key size (bits): 2048
+Signer #1 public key SHA-256 digest: 081e3841c05bcac546287a759b673adf77c249756566454856e9cf02fe764a90
+Signer #1 public key SHA-1 digest: 89bb16c2c27e01934652a73abe3e3b51d96c33a5
+Signer #1 public key MD5 digest: 7a9a3ca5533a2c715c9b31889887bca8
+
+verify_exit=0
+--- devices ---
+List of devices attached
+R9ZX405YBRZ	device
+
+
+target_serial=R9ZX405YBRZ
+--- uninstall prior build ---
+Success
+
+--- install ---
+Performing Streamed Install
+Success
+
+install_exit=0
+--- verify installed ---
+package:com.addisone.addis_one_staff
+package:com.addisone.addis_one
+
+installed=com.addisone.addis_one
+EXIT=0

@@ -1,0 +1,19 @@
+Fatal error during bootstrap PrismaClientInitializationError: error: Error validating datasource `db`: the URL must start with the protocol `postgresql://` or `postgres://`.
+  -->  schema.prisma:18
+   | 
+17 |   provider = "postgresql"
+18 |   url      = env("DATABASE_URL")
+   | 
+
+Validation Error Count: 1
+    at t (C:\Users\alexo\Desktop\File\Code\AddisTransport\backend\node_modules\@prisma\client\runtime\library.js:112:2488)
+    at async Proxy.onModuleInit (C:\Users\alexo\Desktop\File\Code\AddisTransport\backend\dist\prisma\prisma.service.js:27:9)
+    at async Promise.all (index 0)
+    at async callModuleInitHook (C:\Users\alexo\Desktop\File\Code\AddisTransport\backend\node_modules\@nestjs\core\hooks\on-module-init.hook.js:43:5)
+    at async NestApplication.callInitHook (C:\Users\alexo\Desktop\File\Code\AddisTransport\backend\node_modules\@nestjs\core\nest-application-context.js:234:13)
+    at async NestApplication.init (C:\Users\alexo\Desktop\File\Code\AddisTransport\backend\node_modules\@nestjs\core\nest-application.js:100:9)
+    at async NestApplication.listen (C:\Users\alexo\Desktop\File\Code\AddisTransport\backend\node_modules\@nestjs\core\nest-application.js:170:13)
+    at async bootstrap (C:\Users\alexo\Desktop\File\Code\AddisTransport\backend\dist\main.js:60:5) {
+  clientVersion: '5.22.0',
+  errorCode: 'P1012'
+}

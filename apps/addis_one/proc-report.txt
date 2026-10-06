@@ -1,0 +1,9 @@
+﻿listen3000=False
+health FAIL: Unable to connect to the remote server
+reverse=UsbFfs tcp:3000 tcp:3000
+
+
+pkgs=package:com.addisone.addis_one_staff
+package:com.addisone.addis_one
+
+pid=

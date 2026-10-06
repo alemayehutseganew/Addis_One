@@ -1,0 +1,40 @@
+[32m[Nest] 43532  - [39m10/03/2026, 12:35:33 PM [32m    LOG[39m [38;5;3m[NestFactory] [39m[32mStarting Nest application...[39m
+[32m[Nest] 43532  - [39m10/03/2026, 12:35:33 PM [32m    LOG[39m [38;5;3m[CredentialSigner] [39m[32mLoaded ticket signing key addis-one-2026-01 from C:\Users\alexo\Desktop\File\Code\AddisTransport\backend\keys\ticket-signing-key.pem[39m
+[32m[Nest] 43532  - [39m10/03/2026, 12:35:33 PM [32m    LOG[39m [38;5;3m[InstanceLoader] [39m[32mPrismaModule dependencies initialized[39m[38;5;3m +40ms[39m
+[32m[Nest] 43532  - [39m10/03/2026, 12:35:33 PM [32m    LOG[39m [38;5;3m[InstanceLoader] [39m[32mJwtModule dependencies initialized[39m[38;5;3m +48ms[39m
+[32m[Nest] 43532  - [39m10/03/2026, 12:35:33 PM [32m    LOG[39m [38;5;3m[InstanceLoader] [39m[32mConfigHostModule dependencies initialized[39m[38;5;3m +2ms[39m
+[32m[Nest] 43532  - [39m10/03/2026, 12:35:33 PM [32m    LOG[39m [38;5;3m[InstanceLoader] [39m[32mAppModule dependencies initialized[39m[38;5;3m +1ms[39m
+[32m[Nest] 43532  - [39m10/03/2026, 12:35:33 PM [32m    LOG[39m [38;5;3m[InstanceLoader] [39m[32mConfigModule dependencies initialized[39m[38;5;3m +1ms[39m
+[32m[Nest] 43532  - [39m10/03/2026, 12:35:33 PM [32m    LOG[39m [38;5;3m[InstanceLoader] [39m[32mConfigModule dependencies initialized[39m[38;5;3m +1ms[39m
+[32m[Nest] 43532  - [39m10/03/2026, 12:35:33 PM [32m    LOG[39m [38;5;3m[InstanceLoader] [39m[32mDashboardModule dependencies initialized[39m[38;5;3m +3ms[39m
+[32m[Nest] 43532  - [39m10/03/2026, 12:35:33 PM [32m    LOG[39m [38;5;3m[InstanceLoader] [39m[32mJourneysModule dependencies initialized[39m[38;5;3m +1ms[39m
+[32m[Nest] 43532  - [39m10/03/2026, 12:35:33 PM [32m    LOG[39m [38;5;3m[InstanceLoader] [39m[32mPaymentsModule dependencies initialized[39m[38;5;3m +1ms[39m
+[32m[Nest] 43532  - [39m10/03/2026, 12:35:33 PM [32m    LOG[39m [38;5;3m[InstanceLoader] [39m[32mAuthModule dependencies initialized[39m[38;5;3m +1ms[39m
+[32m[Nest] 43532  - [39m10/03/2026, 12:35:34 PM [32m    LOG[39m [38;5;3m[RoutesResolver] [39m[32mHealthController {/api/v1/health}:[39m[38;5;3m +98ms[39m
+[32m[Nest] 43532  - [39m10/03/2026, 12:35:34 PM [32m    LOG[39m [38;5;3m[RouterExplorer] [39m[32mMapped {/api/v1/health, GET} route[39m[38;5;3m +18ms[39m
+[32m[Nest] 43532  - [39m10/03/2026, 12:35:34 PM [32m    LOG[39m [38;5;3m[RoutesResolver] [39m[32mAuthController {/api/v1/auth}:[39m[38;5;3m +4ms[39m
+[32m[Nest] 43532  - [39m10/03/2026, 12:35:34 PM [32m    LOG[39m [38;5;3m[RouterExplorer] [39m[32mMapped {/api/v1/auth/request-otp, POST} route[39m[38;5;3m +2ms[39m
+[32m[Nest] 43532  - [39m10/03/2026, 12:35:34 PM [32m    LOG[39m [38;5;3m[RouterExplorer] [39m[32mMapped {/api/v1/auth/verify-otp, POST} route[39m[38;5;3m +1ms[39m
+[32m[Nest] 43532  - [39m10/03/2026, 12:35:34 PM [32m    LOG[39m [38;5;3m[RouterExplorer] [39m[32mMapped {/api/v1/auth/refresh, POST} route[39m[38;5;3m +1ms[39m
+[32m[Nest] 43532  - [39m10/03/2026, 12:35:34 PM [32m    LOG[39m [38;5;3m[RouterExplorer] [39m[32mMapped {/api/v1/auth/me, GET} route[39m[38;5;3m +1ms[39m
+[32m[Nest] 43532  - [39m10/03/2026, 12:35:34 PM [32m    LOG[39m [38;5;3m[RouterExplorer] [39m[32mMapped {/api/v1/auth/logout, POST} route[39m[38;5;3m +1ms[39m
+[32m[Nest] 43532  - [39m10/03/2026, 12:35:34 PM [32m    LOG[39m [38;5;3m[RoutesResolver] [39m[32mDashboardController {/api/v1/dashboard}:[39m[38;5;3m +1ms[39m
+[32m[Nest] 43532  - [39m10/03/2026, 12:35:34 PM [32m    LOG[39m [38;5;3m[RouterExplorer] [39m[32mMapped {/api/v1/dashboard/session, GET} route[39m[38;5;3m +1ms[39m
+[32m[Nest] 43532  - [39m10/03/2026, 12:35:34 PM [32m    LOG[39m [38;5;3m[RouterExplorer] [39m[32mMapped {/api/v1/dashboard/overview, GET} route[39m[38;5;3m +1ms[39m
+[32m[Nest] 43532  - [39m10/03/2026, 12:35:34 PM [32m    LOG[39m [38;5;3m[RouterExplorer] [39m[32mMapped {/api/v1/dashboard/revenue, GET} route[39m[38;5;3m +1ms[39m
+[32m[Nest] 43532  - [39m10/03/2026, 12:35:34 PM [32m    LOG[39m [38;5;3m[RouterExplorer] [39m[32mMapped {/api/v1/dashboard/operations, GET} route[39m[38;5;3m +1ms[39m
+[32m[Nest] 43532  - [39m10/03/2026, 12:35:34 PM [32m    LOG[39m [38;5;3m[RouterExplorer] [39m[32mMapped {/api/v1/dashboard/network, GET} route[39m[38;5;3m +1ms[39m
+[32m[Nest] 43532  - [39m10/03/2026, 12:35:34 PM [32m    LOG[39m [38;5;3m[RouterExplorer] [39m[32mMapped {/api/v1/dashboard/fares, GET} route[39m[38;5;3m +1ms[39m
+[32m[Nest] 43532  - [39m10/03/2026, 12:35:34 PM [32m    LOG[39m [38;5;3m[RouterExplorer] [39m[32mMapped {/api/v1/dashboard/passengers, GET} route[39m[38;5;3m +1ms[39m
+[32m[Nest] 43532  - [39m10/03/2026, 12:35:34 PM [32m    LOG[39m [38;5;3m[RoutesResolver] [39m[32mStopsController {/api/v1/stops}:[39m[38;5;3m +1ms[39m
+[32m[Nest] 43532  - [39m10/03/2026, 12:35:34 PM [32m    LOG[39m [38;5;3m[RouterExplorer] [39m[32mMapped {/api/v1/stops, GET} route[39m[38;5;3m +1ms[39m
+[32m[Nest] 43532  - [39m10/03/2026, 12:35:34 PM [32m    LOG[39m [38;5;3m[RouterExplorer] [39m[32mMapped {/api/v1/stops/nearby, GET} route[39m[38;5;3m +1ms[39m
+[32m[Nest] 43532  - [39m10/03/2026, 12:35:34 PM [32m    LOG[39m [38;5;3m[RoutesResolver] [39m[32mJourneysController {/api/v1/journeys}:[39m[38;5;3m +0ms[39m
+[32m[Nest] 43532  - [39m10/03/2026, 12:35:34 PM [32m    LOG[39m [38;5;3m[RouterExplorer] [39m[32mMapped {/api/v1/journeys/plan, POST} route[39m[38;5;3m +1ms[39m
+[32m[Nest] 43532  - [39m10/03/2026, 12:35:34 PM [32m    LOG[39m [38;5;3m[RouterExplorer] [39m[32mMapped {/api/v1/journeys/mine, GET} route[39m[38;5;3m +1ms[39m
+[32m[Nest] 43532  - [39m10/03/2026, 12:35:34 PM [32m    LOG[39m [38;5;3m[RoutesResolver] [39m[32mPaymentsController {/api/v1/payments}:[39m[38;5;3m +0ms[39m
+[32m[Nest] 43532  - [39m10/03/2026, 12:35:34 PM [32m    LOG[39m [38;5;3m[RouterExplorer] [39m[32mMapped {/api/v1/payments, POST} route[39m[38;5;3m +1ms[39m
+[32m[Nest] 43532  - [39m10/03/2026, 12:35:34 PM [32m    LOG[39m [38;5;3m[RouterExplorer] [39m[32mMapped {/api/v1/payments/:id, GET} route[39m[38;5;3m +1ms[39m
+[32m[Nest] 43532  - [39m10/03/2026, 12:35:34 PM [32m    LOG[39m [38;5;3m[RouterExplorer] [39m[32mMapped {/api/v1/payments/:id/ticket, GET} route[39m[38;5;3m +1ms[39m
+[32m[Nest] 43532  - [39m10/03/2026, 12:35:34 PM [32m    LOG[39m [38;5;3m[RoutesResolver] [39m[32mTicketsController {/api/v1/tickets}:[39m[38;5;3m +0ms[39m
+[32m[Nest] 43532  - [39m10/03/2026, 12:35:34 PM [32m    LOG[39m [38;5;3m[RouterExplorer] [39m[32mMapped {/api/v1/tickets/mine, GET} route[39m[38;5;3m +1ms[39m

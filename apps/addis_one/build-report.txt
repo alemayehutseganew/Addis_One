@@ -1,0 +1,33 @@
+﻿=== addis_one build @ 2026-10-06T09:31:55.3892654+05:30 ===
+api_base_url=http://127.0.0.1:3000/api/v1
+use_demo_data=False
+enable_dev_sign_in=True
+flavour=release
+args=build apk --release --target-platform android-arm64 --dart-define=API_BASE_URL=http://127.0.0.1:3000/api/v1 --dart-define=USE_DEMO_DATA=false --dart-define=ENABLE_DEV_SIGN_IN=true --dart-define=BUILD_FLAVOUR=live
+Running Gradle task 'assembleRelease'...                        
+flutter.bat : WARNING: Your app uses the following plugins that apply Kotlin Gradle Plugin (KGP): mobile_scanner
+At C:\Users\alexo\Desktop\File\Code\AddisTransport\scripts\build-addis-one.ps1:90 char:16
++     $lines += (& $flutter @flutterArgs 2>&1 | Out-String)
++                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : NotSpecified: (WARNING: Your a... mobile_scanner:String) [], RemoteException
+    + FullyQualifiedErrorId : NativeCommandError
+ 
+Future versions of Flutter will fail to build if your app uses plugins that apply KGP.
+
+Please check the changelogs of these plugins and upgrade to a version that supports Built-in Kotlin.
+If no such version exists, report the issue to the plugin. If necessary, here is a guide on filing
+an issue against a plugin: https://docs.flutter.dev/release/breaking-changes/migrate-to-built-in-kotlin/for-app-develop
+ers#report-incompatible-kotlin-gradle-plugin-usage-to-plugin-authors
+
+If you are a plugin author, please migrate your plugin to Built-in Kotlin using this guide: 
+https://docs.flutter.dev/release/breaking-changes/migrate-to-built-in-kotlin/for-plugin-authors
+Running Gradle task 'assembleRelease'...                          261.7s
+ΓêÜ Built build\app\outputs\flutter-apk\app-release.apk (33.6MB)
+
+flutter_exit=0
+--- artifact ---
+apk_exists=True
+apk_path=C:\Users\alexo\Desktop\File\Code\AddisTransport\apps\addis_one\build\app\outputs\flutter-apk\app-release.apk
+apk_size_mb=33.62
+apk_built_at=2026-10-06T09:36:17.7328346+05:30
+EXIT=0

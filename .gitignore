@@ -1,0 +1,30 @@
+# Flutter SDK source checkout that predates this project. It is the SDK repo
+# itself (engine/, DEPS, CODEOWNERS), not application code, and must never be
+# committed. Delete it if you no longer need it.
+flutter/
+
+# secrets & local config
+.env
+.env.local
+.env.*.local
+
+# node
+node_modules/
+dist/
+coverage/
+*.log
+npm-debug.log*
+
+# editors / OS
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/*
+!.vscode/extensions.json
+
+# flutter
+packages/addis_core/.dart_tool/
+packages/addis_core/build/
+apps/*/.dart_tool/
+apps/*/build/
+**/*.g.dart.lock

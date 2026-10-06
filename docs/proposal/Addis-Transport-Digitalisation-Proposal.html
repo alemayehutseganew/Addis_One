@@ -1,0 +1,766 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<title>Addis Ababa Transport Bureau — Digital Public Transport Modernisation Programme</title>
+<style>
+:root{
+  --ink:#14201C; --muted:#5B6B65; --accent:#1D6FE0; --rule:#D8DEDB;
+  --band:#F4F7F6;
+}
+@page{ size:A4; margin:16mm 14mm 15mm; }
+*{ box-sizing:border-box; }
+html{ -webkit-print-color-adjust:exact; print-color-adjust:exact; }
+
+body{
+  margin:0; color:var(--ink);
+  font-family:Cambria, Georgia, "Times New Roman", "Nyala", serif;
+  font-size:10.3pt; line-height:1.5;
+}
+
+h1,h2,h3,h4,h5,h6{
+  font-family:"Segoe UI","Segoe UI Ethiopic","Nyala",system-ui,sans-serif;
+  color:var(--ink); line-height:1.25;
+  page-break-after:avoid; break-after:avoid-page;
+}
+h1{ font-size:16.5pt; font-weight:600; margin:0 0 13pt; padding-bottom:6pt;
+    border-bottom:2.5pt solid var(--accent);
+    page-break-before:always; break-before:page; }
+/* The very first heading is the document title: no break before it, or the
+   cover would open on an empty page. */
+body > h1:first-of-type{ page-break-before:auto; break-before:auto; margin-top:0; }
+
+h2{ font-size:12.4pt; font-weight:600; margin:19pt 0 7pt; color:#0E2A4A; }
+h3{ font-size:11pt;   font-weight:600; margin:13pt 0 5pt; color:#1C3D2E; }
+h4{ font-size:10.3pt; font-weight:700; margin:11pt 0 4pt; }
+h5,h6{ font-size:10pt; font-weight:700; margin:9pt 0 3pt; }
+
+p{ margin:0 0 8pt; text-align:justify; }
+
+table{
+  width:100%; border-collapse:collapse; margin:10pt 0 13pt;
+  font-size:8.8pt; line-height:1.36;
+  table-layout:auto; page-break-inside:auto;
+}
+thead{ display:table-header-group; }
+tr{ page-break-inside:avoid; break-inside:avoid; }
+th,td{ border:0.5pt solid var(--rule); padding:4pt 6pt; text-align:left; vertical-align:top; }
+th{ background:var(--band); font-family:"Segoe UI",system-ui,sans-serif;
+    font-weight:600; font-size:8.5pt; border-bottom:1.2pt solid #A9B6B1; }
+tbody tr:nth-child(even) td{ background:#FBFCFC; }
+
+code{
+  font-family:Consolas,"Cascadia Mono","Courier New",monospace;
+  font-size:8.5pt; background:#EDF1F0; border:0.4pt solid #D3DAD8;
+  border-radius:2pt; padding:0.5pt 2.2pt; color:#1B3A2A;
+  word-break:break-word;
+}
+pre.code{
+  background:#F7F9F9; border:0.5pt solid var(--rule);
+  border-left:2.5pt solid var(--accent); border-radius:2pt;
+  padding:8pt 10pt; margin:10pt 0 13pt;
+  page-break-inside:avoid; break-inside:avoid;
+}
+pre.code code{
+  background:none; border:none; padding:0; font-size:8pt;
+  line-height:1.4; color:#1D2B25;
+  white-space:pre-wrap; word-break:break-word;
+}
+
+blockquote{
+  margin:10pt 0 13pt; padding:8pt 12pt;
+  background:#F2F7FD; border-left:2.5pt solid var(--accent); color:#23343D;
+}
+blockquote p:last-child{ margin-bottom:0; }
+hr{ border:none; border-top:0.6pt solid var(--rule); margin:15pt 0; }
+
+ul,ol{ margin:0 0 9pt; padding-left:17pt; }
+li{ margin:0 0 3.2pt; }
+li > ul, li > ol{ margin:3.2pt 0 1.5pt; }
+li > p{ margin-bottom:4pt; }
+ul{ list-style-type:disc; }
+ul ul{ list-style-type:circle; }
+ol{ list-style-type:decimal; }
+
+strong{ font-weight:700; }
+em{ font-style:italic; }
+a{ color:#14509C; text-decoration:none; }
+
+.toc-title{ border-bottom:2.5pt solid var(--accent); margin-bottom:11pt; }
+.toc-1{ font-weight:600; margin:7pt 0 2pt; font-size:10pt; }
+.toc-2{ margin:0 0 1.5pt 12pt; font-size:8.9pt; color:var(--muted); }
+.toc-1 a{ color:#0E2A4A; }
+.toc-2 a{ color:var(--muted); }
+
+/* Running footer. Chromium ignores margin boxes in @page, so the page number is
+   supplied by the print engine instead (see print-pdf.ps1 header/footer args). */
+</style>
+</head>
+<body>
+<h1 id="digital-public-transport-modernisation-programme">Digital Public Transport Modernisation Programme</h1>
+<h2 id="technical-proposal-for-the-addis-ababa-city-administration-transport-bureau">Technical Proposal for the Addis Ababa City Administration Transport Bureau</h2>
+<p><strong>Working title of the platform:</strong> Addis One</p>
+<table><thead><tr><th>Field</th><th>Detail</th></tr></thead><tbody><tr><td><strong>Submitted to</strong></td><td>Addis Ababa City Administration — Transport Bureau (also styled "Road and Transport Bureau")</td></tr><tr><td><strong>Submitted by</strong></td><td>Addis One Technical Team</td></tr><tr><td><strong>Date</strong></td><td>October 2026</td></tr><tr><td><strong>Document type</strong></td><td>Technical proposal, request for collaboration and authorisation</td></tr><tr><td><strong>Version</strong></td><td>1.0 — For Bureau review</td></tr><tr><td><strong>Classification</strong></td><td>Commercial-in-confidence until reviewed</td></tr><tr><td><strong>Basis</strong></td><td>Inspected from the built system; all technical claims trace to running code</td></tr></tbody></table>
+<hr />
+<h2 id="how-to-read-this-document">How to read this document</h2>
+<p>This proposal is written from an <strong>inspection of a working system</strong>, not from a conceptual design. Every technical statement in Parts III–V describes software that exists, runs, and is covered by automated tests. Where a capability is <em>not yet built</em>, this document says so plainly rather than implying otherwise — see <strong>Part IV, Section 12: Honest Capability Statement</strong>.</p>
+<p>Sections are written to be lifted out independently, so the Bureau can circulate Part VII (costs) to finance, Part IV (technical procedures) to IT, and Part IX (governance) to legal review without reassembly.</p>
+<hr />
+<h1 class="toc-title">Contents</h1>
+<nav class="toc">
+<div class="toc-1"><a href="#part-i-executive-summary">Part I — Executive Summary</a></div>
+<div class="toc-2"><a href="#1-1-the-request-in-one-paragraph">1.1 The request in one paragraph</a></div>
+<div class="toc-2"><a href="#1-2-why-this-matters-now">1.2 Why this matters now</a></div>
+<div class="toc-2"><a href="#1-3-what-addis-one-is">1.3 What Addis One is</a></div>
+<div class="toc-2"><a href="#1-4-the-five-guarantees-the-system-enforces">1.4 The five guarantees the system enforces</a></div>
+<div class="toc-2"><a href="#1-5-evidence-of-maturity">1.5 Evidence of maturity</a></div>
+<div class="toc-2"><a href="#1-6-what-we-are-asking-for">1.6 What we are asking for</a></div>
+<div class="toc-2"><a href="#1-7-investment-and-return-in-brief">1.7 Investment and return, in brief</a></div>
+<div class="toc-1"><a href="#part-ii-problem-statement-and-objectives">Part II — Problem Statement and Objectives</a></div>
+<div class="toc-2"><a href="#2-1-the-operational-problem">2.1 The operational problem</a></div>
+<div class="toc-2"><a href="#2-2-objectives">2.2 Objectives</a></div>
+<div class="toc-2"><a href="#2-3-principles">2.3 Principles</a></div>
+<div class="toc-2"><a href="#2-4-scope">2.4 Scope</a></div>
+<div class="toc-1"><a href="#part-iii-system-architecture">Part III — System Architecture</a></div>
+<div class="toc-2"><a href="#3-1-the-governing-architectural-rule">3.1 The governing architectural rule</a></div>
+<div class="toc-2"><a href="#3-2-layer-view">3.2 Layer view</a></div>
+<div class="toc-2"><a href="#3-3-deployment-shape-modular-monolith">3.3 Deployment shape: modular monolith</a></div>
+<div class="toc-2"><a href="#3-4-module-inventory">3.4 Module inventory</a></div>
+<div class="toc-2"><a href="#3-5-technology-stack">3.5 Technology stack</a></div>
+<div class="toc-2"><a href="#3-6-realised-reference-network">3.6 Realised reference network</a></div>
+<div class="toc-2"><a href="#3-7-cryptographic-credential-design">3.7 Cryptographic credential design</a></div>
+<div class="toc-2"><a href="#3-8-how-invariants-i1-and-i2-are-enforced-in-code">3.8 How invariants I1 and I2 are enforced in code</a></div>
+<div class="toc-2"><a href="#3-9-authorisation-model">3.9 Authorisation model</a></div>
+<div class="toc-2"><a href="#3-10-data-model-summary">3.10 Data model summary</a></div>
+<div class="toc-1"><a href="#part-iv-technical-procedures">Part IV — Technical Procedures</a></div>
+<div class="toc-2"><a href="#4-1-procedure-1-fare-rule-drafting-approval-and-activation">4.1 Procedure 1 — Fare rule drafting, approval and activation</a></div>
+<div class="toc-2"><a href="#4-2-procedure-2-fare-calculation">4.2 Procedure 2 — Fare calculation</a></div>
+<div class="toc-2"><a href="#4-3-procedure-3-journey-planning">4.3 Procedure 3 — Journey planning</a></div>
+<div class="toc-2"><a href="#4-4-procedure-4-purchase-payment-and-ticket-issuance">4.4 Procedure 4 — Purchase, payment and ticket issuance</a></div>
+<div class="toc-2"><a href="#4-5-procedure-5-ticket-validation-boarding-inspection">4.5 Procedure 5 — Ticket validation (boarding inspection)</a></div>
+<div class="toc-2"><a href="#4-6-procedure-6-shift-and-cash-reconciliation">4.6 Procedure 6 — Shift and cash reconciliation</a></div>
+<div class="toc-2"><a href="#4-7-procedure-7-complaints-and-service-assurance">4.7 Procedure 7 — Complaints and service assurance</a></div>
+<div class="toc-2"><a href="#4-8-procedure-8-identity-authentication-and-session-security">4.8 Procedure 8 — Identity, authentication and session security</a></div>
+<div class="toc-2"><a href="#4-9-procedure-9-governance-reporting">4.9 Procedure 9 — Governance reporting</a></div>
+<div class="toc-2"><a href="#4-10-procedure-10-audit-and-tamper-evidence">4.10 Procedure 10 — Audit and tamper evidence</a></div>
+<div class="toc-2"><a href="#4-11-api-reference-summary">4.11 API reference summary</a></div>
+<div class="toc-2"><a href="#4-12-honest-capability-statement">4.12 Honest capability statement</a></div>
+<div class="toc-1"><a href="#part-v-governance-security-and-data-protection">Part V — Governance, Security and Data Protection</a></div>
+<div class="toc-2"><a href="#5-1-security-architecture">5.1 Security architecture</a></div>
+<div class="toc-2"><a href="#5-2-data-protection-and-privacy">5.2 Data protection and privacy</a></div>
+<div class="toc-2"><a href="#5-3-sovereignty-and-lock-in">5.3 Sovereignty and lock-in</a></div>
+<div class="toc-1"><a href="#part-vi-implementation-roadmap">Part VI — Implementation Roadmap</a></div>
+<div class="toc-2"><a href="#6-1-phasing-philosophy">6.1 Phasing philosophy</a></div>
+<div class="toc-2"><a href="#6-2-phase-0-foundation-months-1-2">6.2 Phase 0 — Foundation (months 1–2)</a></div>
+<div class="toc-2"><a href="#6-3-phase-1-pilot-months-3-10">6.3 Phase 1 — Pilot (months 3–10)</a></div>
+<div class="toc-2"><a href="#6-4-phase-2-expansion-months-11-18">6.4 Phase 2 — Expansion (months 11–18)</a></div>
+<div class="toc-2"><a href="#6-5-phase-3-integration-months-19-26">6.5 Phase 3 — Integration (months 19–26)</a></div>
+<div class="toc-2"><a href="#6-6-phase-4-citywide-months-27-50">6.6 Phase 4 — Citywide (months 27–50)</a></div>
+<div class="toc-1"><a href="#part-vii-cost-resources-and-capacity">Part VII — Cost, Resources and Capacity</a></div>
+<div class="toc-2"><a href="#7-1-phase-0-phase-1-pilot-10-months">7.1 Phase 0 + Phase 1 (pilot, 10 months)</a></div>
+<div class="toc-2"><a href="#7-2-phases-2-4-citywide-5-years">7.2 Phases 2–4 (citywide, 5 years)</a></div>
+<div class="toc-2"><a href="#7-3-return-model-and-its-honest-limits">7.3 Return model — and its honest limits</a></div>
+<div class="toc-2"><a href="#7-4-team-and-capacity">7.4 Team and capacity</a></div>
+<div class="toc-2"><a href="#7-5-training-and-change-management">7.5 Training and change management</a></div>
+<div class="toc-1"><a href="#part-viii-success-metrics">Part VIII — Success Metrics</a></div>
+<div class="toc-2"><a href="#8-1-revenue-integrity-o1-o2">8.1 Revenue integrity (O1, O2)</a></div>
+<div class="toc-2"><a href="#8-2-compliance-and-enforcement-o3">8.2 Compliance and enforcement (O3)</a></div>
+<div class="toc-2"><a href="#8-3-service-quality-o4">8.3 Service quality (O4)</a></div>
+<div class="toc-2"><a href="#8-4-data-quality-o5">8.4 Data quality (O5)</a></div>
+<div class="toc-2"><a href="#8-5-adoption-and-equity">8.5 Adoption and equity</a></div>
+<div class="toc-2"><a href="#8-6-system-health">8.6 System health</a></div>
+<div class="toc-1"><a href="#part-ix-risk-register">Part IX — Risk Register</a></div>
+<div class="toc-2"><a href="#9-1-risks-to-this-proposal-specifically">9.1 Risks to this proposal specifically</a></div>
+<div class="toc-1"><a href="#part-x-the-request">Part X — The Request</a></div>
+<div class="toc-2"><a href="#10-1-what-we-ask-the-bureau-to-approve">10.1 What we ask the Bureau to approve</a></div>
+<div class="toc-2"><a href="#10-2-what-we-commit-to">10.2 What we commit to</a></div>
+<div class="toc-2"><a href="#10-3-immediate-next-steps">10.3 Immediate next steps</a></div>
+<div class="toc-2"><a href="#10-4-contact">10.4 Contact</a></div>
+<div class="toc-2"><a href="#appendix-a-glossary">Appendix A — Glossary</a></div>
+<div class="toc-2"><a href="#appendix-b-architecture-decision-records">Appendix B — Architecture Decision Records</a></div>
+<div class="toc-2"><a href="#appendix-c-technical-evidence-available-for-bureau-review">Appendix C — Technical evidence available for Bureau review</a></div>
+</nav>
+<h1 id="part-i-executive-summary">Part I — Executive Summary</h1>
+<h2 id="1-1-the-request-in-one-paragraph">1.1 The request in one paragraph</h2>
+<p>We ask the Transport Bureau to authorise a <strong>pilot</strong> of <strong>Addis One</strong>, a digital public transport operating, ticketing and assurance platform, on a defined set of Anbessa and private-operator routes; and to establish a joint Bureau–Team programme office to govern its delivery. We are not asking the Bureau to adopt an off-the-shelf product. We are asking it to co-own a system whose revenue-integrity and audit guarantees are enforced structurally in code, so that the Bureau can verify them rather than trust them.</p>
+<h2 id="1-2-why-this-matters-now">1.2 Why this matters now</h2>
+<p>The Bureau's own 2011 Transport Policy of Addis Ababa set out objectives that remain unmet two decades on: enhancing transport service provision, employing integrated and modern traffic management, and strengthening financial capacity. Service provision remains fragmented, fare determination is opaque, and the Bureau has limited ability to see its own network in real time.</p>
+<p>The Bureau is not starting from zero. The Addis Ababa City Roads Authority procured a 644 million Birr Intelligent Transport System for Anbessa's fleet — vehicle tracking, electronic fare collection, passenger information and CCTV — delivered by Qingdao Hisense Trans Tech and China Shandong International, with a two-year installation and six-year maintenance term. <strong>That project answers "where are the buses." It does not answer the questions the Bureau actually administers: how many passengers, who paid the correct fare, who validated which ticket, and where the revenue went.</strong></p>
+<p>This proposal addresses that gap specifically. It does not replace the ITS investment; it consumes it.</p>
+<h2 id="1-3-what-addis-one-is">1.3 What Addis One is</h2>
+<p>A citywide <strong>transport operating and assurance platform</strong>. Not a ticketing app. Ticketing is one capability of a system whose primary purpose is to give the Bureau a defensible, real-time, auditable view of the public transport network.</p>
+<table><thead><tr><th>Capability</th><th>What it delivers to the Bureau</th></tr></thead><tbody><tr><td><strong>Journey planning</strong></td><td>Multi-leg routing across modes with fares computed by published, versioned policy</td></tr><tr><td><strong>Versioned fare engine</strong></td><td>Every fare reproducible and explainable years later; fare changes dual-control approved</td></tr><tr><td><strong>Digital ticketing</strong></td><td>Server-signed Ed25519 QR credentials verifiable offline by inspector handhelds</td></tr><tr><td><strong>Payment orchestration</strong></td><td>Telebirr, CBE Birr, bank, USSD, wallet and <strong>cash/agent</strong> through one pipeline</td></tr><tr><td><strong>Cash reconciliation</strong></td><td>Shift-level float, declared cash and variance — the missing control on cash revenue</td></tr><tr><td><strong>Live assurance</strong></td><td>Complaints, overcharge, safety and lost-property with geospatial capture</td></tr><tr><td><strong>Governance dashboard</strong></td><td>Revenue, operations, network, fare and fleet reporting, role-scoped</td></tr><tr><td><strong>Tamper-evident audit</strong></td><td>Append-only, hash-chained log of every privileged action</td></tr></tbody></table>
+<h2 id="1-4-the-five-guarantees-the-system-enforces">1.4 The five guarantees the system enforces</h2>
+<p>These are the load-bearing claims. Each is enforced at the <strong>database or cryptographic</strong> layer, not by application convention, because application-layer checks are bypassable and this is a revenue system.</p>
+<table><thead><tr><th>#</th><th>Guarantee</th><th>Enforcement mechanism</th></tr></thead><tbody><tr><td><strong>I1</strong></td><td>A ticket exists <strong>only</strong> against a confirmed payment</td><td>State machine has exactly one edge into <code>TICKET_ISSUED</code>, from <code>PAYMENT_CONFIRMED</code></td></tr><tr><td><strong>I2</strong></td><td>Idempotency is a <strong>database constraint</strong></td><td><code>payments.idempotencyKey</code> is <code>UNIQUE</code>; double-tap cannot double-charge</td></tr><tr><td><strong>I3</strong></td><td>Fares are <strong>versioned</strong> and tickets pin their version</td><td><code>Ticket.fareRuleVersion</code> NOT NULL; history is never rewritten</td></tr><tr><td><strong>I4</strong></td><td>QR payloads carry <strong>no commercial data</strong></td><td>Credential holds identifiers, timestamps, nonce, signature only</td></tr><tr><td><strong>I5</strong></td><td>Every privileged action is <strong>audited</strong></td><td>Append-only <code>AuditEvent</code> with a chained hash</td></tr></tbody></table>
+<p><strong>Detail matters on I1.</strong> The common catastrophic bug in mobile ticketing is treating "the passenger came back from the payment redirect" as proof of payment. This system structurally cannot make that error: the payment orchestrator has no method that mints a ticket. A redirect return is <code>REQUIRES_ACTION</code>, which is explicitly <em>not</em> confirmation, and a test asserts exactly that.</p>
+<h2 id="1-5-evidence-of-maturity">1.5 Evidence of maturity</h2>
+<p>This is not a prototype. As built and verified at the time of submission:</p>
+<ul><li><strong>~9,400 lines</strong> of TypeScript across 58 source files</li><li><strong>141 automated tests</strong> in 7 suites, all passing, covering the fare engine, ticket   state machine, payment orchestrator, credential signer, authorisation policy and   dashboard query layer</li><li><strong>~40 database models</strong> with invariants expressed as schema constraints</li><li><strong>12 staff roles</strong> with a single centralised authorisation policy file</li><li><strong>Two Flutter applications</strong> (passenger, staff/inspector) and a web operations   dashboard</li><li><strong>Real Addis Ababa network data</strong> seeded: 15 stops with Amharic names and true   coordinates, 6 routes, zone-based fare rules with a superseded v1 and active v2</li></ul>
+<p>The fare rule seeding deliberately ships <code>CITY-BUS v1</code> as <code>SUPERSEDED</code> and <code>v2</code> as <code>ACTIVE</code> so that invariant I3 is <em>testable</em>: a ticket issued before the change pins v1, and the same route today quotes v2 — so the historical charge stays explicable. That is the level of intent applied throughout.</p>
+<h2 id="1-6-what-we-are-asking-for">1.6 What we are asking for</h2>
+<ol><li><strong>A memorandum of understanding</strong> establishing a joint Bureau–Team programme office.</li><li><strong>Authorisation for a pilot</strong> on an agreed route corridor, recommended as 6–10    routes serving the central corridor (Piazza–Derg Square–Merkato–Bole–Kality),    where the seeded reference data already exists and demand density is highest.</li><li><strong>Data and regulatory access</strong> — network reference data, fare policy documents,    operator agreements, and the ITS feed.</li><li><strong>A joint assurance mandate</strong> — Bureau auditors with read access to the audit    chain and revenue reporting.</li></ol>
+<p>We ask for no exclusivity and no procurement commitment in this document. We ask for a pilot that produces evidence the Bureau can use to make a later, informed decision.</p>
+<h2 id="1-7-investment-and-return-in-brief">1.7 Investment and return, in brief</h2>
+<p>Indicative figures, detailed in Part VII:</p>
+<ul><li><strong>Pilot (18 months):</strong> approximately <strong>ETB 34–52 million</strong> total, of which the   Bureau's cash requirement is a minority share — the remainder being Team   investment, in-kind operator contribution and device financing.</li><li><strong>Citywide (Phases 2–4, 5 years):</strong> approximately <strong>ETB 380–620 million</strong>.</li></ul>
+<p>Return rests on three measurable sources: recovered revenue leakage from cash handling, reduced fare disputes resolved from evidence rather than argument, and enforcement efficiency from knowing who boarded without paying.</p>
+<p>We deliberately do not promise a percentage. Any revenue figure before a pilot would be invented, and the Bureau should treat our projections as estimates to be validated by measurement — which is precisely what the pilot is for.</p>
+<hr />
+<h1 id="part-ii-problem-statement-and-objectives">Part II — Problem Statement and Objectives</h1>
+<h2 id="2-1-the-operational-problem">2.1 The operational problem</h2>
+<p>Addis Ababa's public transport is delivered by a mix of state and private operators running buses, minibuses, taxis and, increasingly, ride-hailing. The Bureau regulates this network but cannot currently see it as a single system. Five specific failures follow from that.</p>
+<h3 id="2-1-1-fare-determination-is-invisible-and-unenforceable">2.1.1 Fare determination is invisible and unenforceable</h3>
+<p>Fares are set by policy but applied by convention at the point of boarding. A conductor's assertion of the correct fare is difficult to challenge without evidence. There is no authoritative record of what fare <em>should</em> have been charged for a specific origin, destination, mode and time — so disputes are resolved by argument, not by record.</p>
+<p><strong>Consequence:</strong> passengers overpay without recourse; operators face unfounded disputes; the Bureau cannot measure compliance with its own fare policy.</p>
+<h3 id="2-1-2-cash-revenue-is-untracked-from-the-vehicle-to-the-treasury">2.1.2 Cash revenue is untracked from the vehicle to the treasury</h3>
+<p>Cash is the dominant payment method for public transport. It changes hands at the door and is collected by staff. There is typically no shift-level record of what float a vehicle started with, what was sold, and what was declared at the end of a shift.</p>
+<p><strong>Consequence:</strong> shortfalls are discovered, if at all, only through suspicion or after-the-fact audit. There is no control environment to audit <em>against</em>.</p>
+<h3 id="2-1-3-fare-evasion-is-unobservable">2.1.3 Fare evasion is unobservable</h3>
+<p>Whether a fare-paying passenger actually travelled is not recorded anywhere. A ticket-free system means boarding is unenforced; a printed-ticket system creates its own counterfeit problem.</p>
+<p><strong>Consequence:</strong> the Bureau cannot size the revenue gap, so it cannot target enforcement or estimate the return from digitisation.</p>
+<h3 id="2-1-4-service-quality-is-reported-anecdotally">2.1.4 Service quality is reported anecdotally</h3>
+<p>Overcharging, safety incidents, discrimination and lost property reach the Bureau through complaints that are unstructured, unlocated and unmeasured. There is no category taxonomy, no geospatial capture, no resolution workflow and no trend analysis.</p>
+<p><strong>Consequence:</strong> recurring problems on specific routes, operators or stops stay invisible, and the Bureau cannot direct its limited enforcement resource.</p>
+<h3 id="2-1-5-network-reference-data-is-not-authoritative-in-software">2.1.5 Network reference data is not authoritative in software</h3>
+<p>Routes, stops, vehicles, operators and fares exist as paperwork and in operator heads. Planning, dispatch and compliance work cannot be automated because the data is not in a form software can use.</p>
+<p><strong>Consequence:</strong> every new initiative re-keys the same network data, and none of it is reusable.</p>
+<h2 id="2-2-objectives">2.2 Objectives</h2>
+<p>The programme is designed against five objectives, each mapped to a measurable success criterion in Part VIII.</p>
+<table><thead><tr><th>#</th><th>Objective</th><th>Success criterion (pilot)</th></tr></thead><tbody><tr><td><strong>O1</strong></td><td>Make fare policy computable and explainable</td><td>100% of issued tickets carry a resolvable fare rule version; any fare reproducible from stored inputs</td></tr><tr><td><strong>O2</strong></td><td>Bring cash revenue under control</td><td>≥98% of staff shifts closed with a declared cash figure; variance trend measured and falling</td></tr><tr><td><strong>O3</strong></td><td>Make fare evasion observable</td><td>Validation rate and outcome distribution measurable per route/operator/day</td></tr><tr><td><strong>O4</strong></td><td>Turn complaints into structured assurance data</td><td>100% of complaints categorised, geolocated and tracked to resolution</td></tr><tr><td><strong>O5</strong></td><td>Establish authoritative network reference data</td><td>Bureau-approved stop, route, vehicle and operator registers loaded and version-controlled</td></tr></tbody></table>
+<h2 id="2-3-principles">2.3 Principles</h2>
+<p>These constrain every design decision, and are stated here because the Bureau should be able to hold us to them.</p>
+<ol><li><strong>The server is authoritative; the phone is not.</strong> A fare is not correct    because a phone said so. Every authoritative decision — fare calculation,    ticket issuance, signature, validation outcome — is made server-side.</li><li><strong>Fail closed, visibly.</strong> Where the fare engine matches no rule, it does not    invent a price. It applies a flagged fallback and raises an alert, so the    anomaly is a monitoring event rather than a silent wrong charge.</li><li><strong>Every privileged action is attributable.</strong> Actor, device, IP, before/after    value and reason are recorded, and the record is tamper-evident.</li><li><strong>Cash is a first-class payment method, not an exception.</strong> Agent sales flow    through the same orchestrator as mobile payments, producing the same auditable    records.</li><li><strong>Privacy by construction.</strong> A photo of a passenger's QR reveals nothing about    them. Live position history is limited to operational need.</li><li><strong>Explainability over cleverness.</strong> The journey planner uses a simple,    explainable algorithm. When a passenger disputes a fare, the Bureau can show    <em>why</em> the option existed. An opaque algorithm cannot be explained at all.</li><li><strong>Open standards, sovereign operation.</strong> The Bureau owns its data, its keys and    its deployment. No vendor lock-in, no proprietary wire format.</li></ol>
+<h2 id="2-4-scope">2.4 Scope</h2>
+<h3 id="in-scope-for-the-pilot">In scope for the pilot</h3>
+<ul><li>Bus mode on an agreed central corridor (taxi and rail data models are present;   taxi and rail are Phase 2)</li><li>Digital ticketing with offline-capable validation</li><li>Telebirr and CBE Birr payment integration, plus cash and agent sales</li><li>Fare policy administration with dual-control approval</li><li>Staff shift and cash reconciliation</li><li>Complaints and assurance workflow</li><li>Governance dashboard with role-scoped reporting</li><li>Staff, driver and inspector mobile applications</li></ul>
+<h3 id="explicitly-out-of-scope-for-the-pilot">Explicitly out of scope for the pilot</h3>
+<ul><li>Road traffic management, signal control and enforcement (Bureau/AACRA domain)</li><li>Physical infrastructure and stop construction</li><li>Railway ticketing automation</li><li>Taxi and ride-hailing fare integration</li><li>Vehicle maintenance and workshop systems</li><li>Rewriting or replacing the AACRA ITS investment</li></ul>
+<hr />
+<h1 id="part-iii-system-architecture">Part III — System Architecture</h1>
+<p>This part describes the architecture as implemented. It is the technical basis for Part IV's operating procedures.</p>
+<h2 id="3-1-the-governing-architectural-rule">3.1 The governing architectural rule</h2>
+<blockquote><p><strong>The mobile application is the client layer. It is not the system.</strong></p></blockquote>
+<p>A ticket is not valid because a phone said so. A fare is not 25 Birr because a conditional in Dart said so. A payment is not successful because the passenger returned from a redirect screen.</p>
+<p>Every authoritative decision — fare calculation, ticket issuance, QR signature, validation outcome — happens on the server. The client renders server truth.</p>
+<p>The alternative fails catastrophically. A modified client could mint valid tickets and forge payment confirmations. For a public transport revenue system that is a revenue-integrity failure, not a bug.</p>
+<h2 id="3-2-layer-view">3.2 Layer view</h2>
+<pre class="code"><code>                        ADDIS ONE
+                            │
+       ┌────────────────────┼────────────────────┐
+       │                    │                    │
+  PASSENGER APP       STAFF/INSPECTOR       GOVERNANCE
+     Flutter              Flutter             Web
+       │                    │                    │
+       └────────────────────┼────────────────────┘
+                            │
+                     ADDIS ONE API
+                    (API Gateway)
+                            │
+   ┌────────────────────────┼────────────────────────┐
+   │                        │                        │
+ IDENTITY  MOBILITY  FARE   PAYMENTS  TICKETING   VALIDATION
+ AUDIT     ASSURANCE  NOTIFICATION  DASHBOARD  ADMIN
+   │                        │                        │
+   └────────────────────────┼────────────────────────┘
+                            │
+   ┌────────────────────────┴────────────────────────┐
+   │  PostgreSQL (transactional)  Redis (cache/lock) │
+   │  Time-series store (fleet GPS)  Object storage   │
+   └─────────────────────────────────────────────────┘</code></pre>
+<h2 id="3-3-deployment-shape-modular-monolith">3.3 Deployment shape: modular monolith</h2>
+<p>The backend is a <strong>single deployable NestJS application</strong> organised into modules with explicit boundaries and no cross-module table writes. Modules communicate through exported services.</p>
+<p>This is a deliberate decision, recorded as ADR 0001. The rationale matters for the Bureau because it determines when cost and complexity rise:</p>
+<ul><li>A ticket and its confirming payment must commit <strong>atomically</strong>. Splitting these   into separate network services on day one introduces distributed transactions and   partial-failure modes into a system whose correctness depends on exactly that   guarantee.</li><li>Modules are shaped so that later extraction into separate services is a   <strong>deployment change, not a rewrite</strong>. If fleet-GPS ingestion needs independent   scaling — and it will — it is already carved out.</li><li>One deployment, one migration history, straightforward local development and   handover to Bureau staff.</li></ul>
+<p>The cost accepted: a single scaling unit, and module boundaries enforced by discipline and review rather than by infrastructure. Mitigated by a single centralised authorisation policy file and code review at the boundary.</p>
+<h2 id="3-4-module-inventory">3.4 Module inventory</h2>
+<table><thead><tr><th>Module</th><th>Responsibility</th><th>Key artefacts</th></tr></thead><tbody><tr><td><strong>Auth / Identity</strong></td><td>OTP sign-in, JWT issuance, staff sessions, device enrolment</td><td><code>auth.controller</code>, <code>staff.guard</code>, <code>policy</code>, <code>token.service</code></td></tr><tr><td><strong>Journeys</strong></td><td>Journey planning, stop search, nearest-stop</td><td><code>journey-planner.service</code></td></tr><tr><td><strong>Mobility</strong></td><td>Driver trips, manifests, trip lifecycle</td><td><code>mobility.controller</code>, <code>mobility.service</code></td></tr><tr><td><strong>Fares</strong></td><td>Pure fare calculation domain logic</td><td><code>fare-engine.ts</code></td></tr><tr><td><strong>Payments</strong></td><td>Orchestration, provider adapters, idempotency</td><td><code>payment-orchestrator</code>, <code>payments.controller</code></td></tr><tr><td><strong>Ticketing</strong></td><td>Issuance, QR credential signing, state machine</td><td><code>ticket-issuance.service</code>, <code>credential-signer</code>, <code>ticket-state-machine</code></td></tr><tr><td><strong>Validation</strong></td><td>Inspector scanning, offline reconciliation</td><td><code>validation.service</code></td></tr><tr><td><strong>Admin</strong></td><td>Network reference data, fare rule authoring, staff</td><td><code>admin.controller</code>, <code>admin.service</code></td></tr><tr><td><strong>Assurance</strong></td><td>Complaints workflow</td><td><code>assurance.controller</code></td></tr><tr><td><strong>Dashboard</strong></td><td>Read-only governance reporting</td><td><code>dashboard.controller</code>, <code>database-inspector.service</code></td></tr><tr><td><strong>Audit</strong></td><td>Append-only hash-chained event log</td><td><code>AuditEvent</code> model</td></tr></tbody></table>
+<h3 id="3-4-1-why-the-dashboard-is-read-only-by-construction">3.4.1 Why the dashboard is read-only by construction</h3>
+<p>The dashboard controller exposes <strong>no</strong> POST, PUT or DELETE handlers. It is a reporting surface over records that are already immutable or governed elsewhere. A dashboard that could approve a fare or void a ticket would need dual-control audit on every action — and that belongs in the admin module, not bolted onto a screen whose guards were only ever reasoned about for reads.</p>
+<h3 id="3-4-2-why-ticketing-and-validation-are-separate-modules">3.4.2 Why ticketing and validation are separate modules</h3>
+<p>Ticketing <strong>issues and signs</strong>. Validation <strong>verifies and records</strong>. The scanner never mints a ticket; the issuer never validates one. Separating them means neither surface can drift into the other's authority by accident.</p>
+<h2 id="3-5-technology-stack">3.5 Technology stack</h2>
+<table><thead><tr><th>Layer</th><th>Technology</th><th>Rationale</th></tr></thead><tbody><tr><td>API</td><td>NestJS 10, TypeScript 5.7, Node ≥20</td><td>Structured modules, first-class DI, guards match the authorisation model</td></tr><tr><td>Persistence</td><td>PostgreSQL 16 via Prisma 5</td><td>Transactions are the backbone of invariants I1 and I2</td></tr><tr><td>Cache / lock</td><td>Redis 7</td><td>Rate limiting, idempotency short-circuit, OTP challenge cache</td></tr><tr><td>Time-series</td><td>TimescaleDB (Postgres 16)</td><td>Fleet GPS, deliberately <strong>outside</strong> the transactional database</td></tr><tr><td>Clients</td><td>Flutter (Dart), Android-first</td><td>One codebase, low-end device support, offline capability</td></tr><tr><td>Dashboard</td><td>Server-served static web</td><td>Officers always see the deployed version, never a stale cached copy</td></tr><tr><td>Cryptography</td><td>Ed25519 via Node <code>crypto</code></td><td>See §3.7</td></tr><tr><td>Documentation</td><td>OpenAPI via <code>@nestjs/swagger</code></td><td>Self-describing API; every route discoverable including role-gated ones</td></tr></tbody></table>
+<h3 id="3-5-1-money-handling">3.5.1 Money handling</h3>
+<p>All monetary values are stored as <strong>integer minor units (fils; 1 ETB = 100 fils)</strong>. Floating point is never used. The fare engine rounds the per-kilometre component to whole fils so no float is retained in a monetary total. Conversion to ETB happens only at the presentation edge.</p>
+<h3 id="3-5-2-time-identity-and-freshness">3.5.2 Time, identity and freshness</h3>
+<table><thead><tr><th>Concern</th><th>Convention</th><th>Why it matters</th></tr></thead><tbody><tr><td><strong>Time</strong></td><td>UTC everywhere; rendered <code>Africa/Addis_Ababa</code> at the edge</td><td>Ethiopia has no daylight saving; a single clock avoids DST-era fraud windows</td></tr><tr><td><strong>IDs</strong></td><td>Prefixed, sortable, non-enumerable (<code>TKT-</code>, <code>PAY-</code>, <code>VAL-</code>, <code>CRD-</code>)</td><td>A timestamp prefix sorts by creation without reading the timestamp column</td></tr><tr><td><strong>Freshness</strong></td><td>Every live reading carries <code>REAL_TIME</code> / <code>ESTIMATED</code> / <code>SCHEDULED</code> / <code>STALE</code> / <code>UNKNOWN</code></td><td>A stale position must never be presented as a live one</td></tr></tbody></table>
+<h2 id="3-6-realised-reference-network">3.6 Realised reference network</h2>
+<p>The seeded dataset is real Addis Ababa geography, not placeholder text:</p>
+<table><thead><tr><th>Attribute</th><th>Value</th></tr></thead><tbody><tr><td>Stops</td><td>15, with Amharic names and WGS-84 coordinates</td></tr><tr><td>Zones</td><td>Z1 Piazza core, Z2 Merkato/Derg, Z3 Bole/Kality, Z4 Kirkos/Gefersa</td></tr><tr><td>Routes</td><td>6 (R-3, R-4, R-5, R-7, R-12, R-14), 4–7 stops each, cumulative distance in metres</td></tr><tr><td>Operators</td><td>2 licensed operators with licence numbers and settlement accounts</td></tr><tr><td>Modes</td><td>Bus (live), Taxi and Train (data models present)</td></tr><tr><td>Fare rules</td><td>Zone-pair matrix (Z1↔Z2, Z1↔Z3, Z2↔Z3), long-distance band, citywide fallback</td></tr><tr><td>Concessions</td><td>Student 50%, Senior 40%, Disability 100%, all requiring proof</td></tr><tr><td>Transfers</td><td>80% retained on second leg within 60 minutes, 1 transfer maximum</td></tr></tbody></table>
+<p>Stops include Piazza (ፓያዛ), Derg Square (ደርግ አደካ), Merkato (መርካቶ), Bole (ቦሌ), Kirkos (ክርቆስ) and Kality (ካሊቲ), with shelter and zone attributes. The pilot recommendation in §1.6 targets this corridor because the data exists and demand density is highest.</p>
+<h2 id="3-7-cryptographic-credential-design">3.7 Cryptographic credential design</h2>
+<h3 id="3-7-1-why-ed25519">3.7.1 Why Ed25519</h3>
+<p>Passenger ticket QR codes must be verifiable <strong>offline</strong> by staff handhelds with intermittent connectivity. That operational constraint — not preference — drove the algorithm choice. Recorded as ADR 0002.</p>
+<table><thead><tr><th>Property</th><th>Value</th><th>Consequence</th></tr></thead><tbody><tr><td>Public key</td><td>32 bytes</td><td>Fits anywhere; distribution to 1,000s of handhelds is practical</td></tr><tr><td>Signature</td><td>64 bytes</td><td>QR code remains scannable; an RSA-2048 signature (~294 bytes) would bloat every code</td></tr><tr><td>Verification speed</td><td>A handful of field operations</td><td>Fast enough on a low-end handheld with no crypto accelerator</td></tr><tr><td>Determinism</td><td>Same payload always yields the same signature</td><td>Removes an entire class of replay-with-mutation questions</td></tr></tbody></table>
+<p>RSA was the rejected alternative: signature size scales with key size, verification cost scales with key size, and QR capacity is scarce.</p>
+<h3 id="3-7-2-what-the-qr-contains-and-what-it-deliberately-does-not">3.7.2 What the QR contains — and what it deliberately does not</h3>
+<pre class="code"><code>{"t": &lt;ticketId&gt;, "c": &lt;credentialId&gt;, "i": &lt;issuedAt&gt;,
+ "e": &lt;expiresAt&gt;, "n": &lt;nonce&gt;, "k": &lt;keyId&gt;, "s": &lt;signature&gt;}</code></pre>
+<p>The payload carries <strong>identifiers, timestamps, a 128-bit nonce and a signature</strong>. It carries <strong>no fare, no user id, no route, no name</strong> (invariant I4).</p>
+<p><strong>Why this matters practically:</strong> a photograph of a passenger's QR reveals nothing about them. It cannot be replayed for a different fare, because the fare is not in it. A screenshot shared socially is a photo of a random reference number.</p>
+<p>The credential is a <em>reference</em>, resolved by the validator against the stored ticket. The public key is embedded in staff devices at enrolment, so offline validation is cryptographically real rather than a local boolean check.</p>
+<h3 id="3-7-3-canonical-serialisation">3.7.3 Canonical serialisation</h3>
+<p>The signed bytes are produced by joining a <strong>fixed, versioned field order</strong> with a delimiter — never by <code>JSON.stringify</code> of an object literal. JavaScript object key ordering is not contractually stable across engines, so a signing/verification mismatch would reject valid tickets. The credential carries an explicit version field (<code>v</code>), and an unrecognised version fails closed as <code>UNSUPPORTED_VERSION</code> rather than being guessed at.</p>
+<h3 id="3-7-4-key-lifecycle">3.7.4 Key lifecycle</h3>
+<ul><li>Private signing key is held by the server only; it is <strong>never</strong> distributed to   staff devices.</li><li>Public verification keys are provisioned at device enrolment and can be revoked   (<code>OfflineKey.revokedAt</code>), supporting lost-device response.</li><li>Every credential records <strong>which key signed it</strong> (<code>keyId</code>), so a verifier may   hold several public keys and continue to accept historical tickets signed by a   retired key. Rotation is therefore non-breaking — a requirement the Bureau should   insist on, because a forced bulk reissue after a rotation would be operationally   unacceptable.</li></ul>
+<h2 id="3-8-how-invariants-i1-and-i2-are-enforced-in-code">3.8 How invariants I1 and I2 are enforced in code</h2>
+<p>Invariants are not documentation. They are structural properties of the code.</p>
+<h3 id="3-8-1-i1-a-ticket-exists-only-against-a-confirmed-payment">3.8.1 I1 — a ticket exists only against a confirmed payment</h3>
+<p>Enforced from three independent directions, so removing any one still leaves a barrier:</p>
+<ol><li><strong>The orchestrator cannot issue tickets.</strong> The payment orchestrator returns    payment state only. There is no method that mints a ticket, so "payment    succeeded" and "ticket issued" are not conflated by construction.</li><li><strong>The state machine has exactly one edge into <code>TICKET_ISSUED</code></strong>, from    <code>PAYMENT_CONFIRMED</code>. A test iterates every status and asserts that none other can    reach it.</li><li><strong><code>assertIssuable(ticketStatus, paymentStatus)</code></strong> refuses anything that is not    <code>CONFIRMED</code>, raising an error that names the I1 violation explicitly.</li></ol>
+<p>The specific failure prevented: treating a client returning from a payment redirect as proof of payment. <code>REQUIRES_ACTION</code> carries a redirect URL and is explicitly <em>not</em> confirmation; there is a dedicated test for exactly that.</p>
+<h3 id="3-8-2-i2-idempotency-is-a-database-constraint">3.8.2 I2 — idempotency is a database constraint</h3>
+<p>The guarantee is a <code>UNIQUE</code> index on <code>payments.idempotencyKey</code>. Everything else is an optimisation layered on top:</p>
+<ul><li><code>createPayment</code> checks for an existing key first (fast path).</li><li>If that check misses but a concurrent request wins the race, the insert raises a   unique violation, which is caught and the <strong>winning</strong> payment is returned.</li><li><code>initiate</code> never re-opens a payment in a terminal state, so a replayed request   cannot restart a settled or failed payment.</li></ul>
+<p>Parallel double-taps therefore converge on <strong>one charge</strong> rather than surfacing an error to a passenger who tapped twice — the correct behaviour at the point of sale.</p>
+<h2 id="3-9-authorisation-model">3.9 Authorisation model</h2>
+<h3 id="3-9-1-twelve-staff-roles">3.9.1 Twelve staff roles</h3>
+<p><code>DRIVER</code>, <code>CONDUCTOR</code>, <code>INSPECTOR</code>, <code>TICKET_OFFICER</code>, <code>AGENT</code>, <code>SUPERVISOR</code>, <code>OPERATOR_ADMIN</code>, <code>TRANSPORT_BUREAU_ADMIN</code>, <code>FINANCE</code>, <code>AUDITOR</code>, plus <code>SUPER_ADMIN</code>. Every role list the API authorises against is declared in <strong>one file</strong>, beside the guard that enforces it.</p>
+<h3 id="3-9-2-the-operator-boundary-a-role-grant-is-not-sufficient">3.9.2 The operator boundary — a role grant is not sufficient</h3>
+<p>Staff may act only on their own operator's resources unless they hold a bureau or finance role. This boundary is enforced <strong>in the service layer</strong> by an explicit assertion, not merely by which buttons the UI shows. An <code>OPERATOR_ADMIN</code> editing their own fleet is filtered by data ownership as well as by role.</p>
+<p><strong>This is the control that makes multi-operator rollout safe.</strong> Without it, the first operator with a compromised credential can write to every other operator's network.</p>
+<h3 id="3-9-3-role-scoped-permissions">3.9.3 Role-scoped permissions</h3>
+<table><thead><tr><th>Capability</th><th>Roles permitted</th></tr></thead><tbody><tr><td>View dashboard</td><td>Bureau admin, finance, auditor, operator admin, supervisor</td></tr><tr><td>View money (revenue, fares)</td><td>Bureau admin, finance, auditor, super admin</td></tr><tr><td>Manage network data</td><td>Bureau admin, operator admin, super admin</td></tr><tr><td>Draft a fare change</td><td>Bureau admin, finance, super admin</td></tr><tr><td>Approve a fare change</td><td>Bureau admin, finance, auditor, super admin</td></tr><tr><td>Change a staff role</td><td>Bureau admin, super admin only</td></tr><tr><td>Scan / validate tickets</td><td>Inspector, ticket officer, supervisor, agent, conductor, operator admin, bureau admin</td></tr><tr><td>Read database internals</td><td>Bureau admin, super admin only</td></tr></tbody></table>
+<p>Two design decisions deserve the Bureau's attention:</p>
+<ul><li><strong>Field roles are excluded from the dashboard entirely</strong> rather than shown a   reduced view. A half-visible figure is still a leak, and a dashboard they can   never use is not a capability anyone requested.</li><li><strong>Fare author and fare approver role lists deliberately overlap</strong> — the same   agency approves its own fares. Overlap alone does not grant self-approval,   because the service layer separately <strong>forbids a draft's own author from   activating it</strong>. This is dual control implemented so that role configuration   cannot accidentally defeat it.</li></ul>
+<h3 id="3-9-4-reporting-not-enforcing-on-the-client">3.9.4 Reporting, not enforcing, on the client</h3>
+<p>The session endpoint reports what a given role may do, so the app can hide panels that would only return 403. This is <strong>presentation, not security</strong>: the server re-reads the role from the database and enforces every rule on every request.</p>
+<h2 id="3-10-data-model-summary">3.10 Data model summary</h2>
+<p>~40 models. The five invariants are expressed as schema constraints, so they hold regardless of application behaviour.</p>
+<table><thead><tr><th>Domain</th><th>Principal models</th></tr></thead><tbody><tr><td><strong>Identity</strong></td><td><code>User</code>, <code>Passenger</code>, <code>Staff</code>, <code>Operator</code>, <code>Device</code>, <code>StaffDevice</code>, <code>OtpChallenge</code>, <code>RefreshToken</code></td></tr><tr><td><strong>Mobility</strong></td><td><code>Route</code>, <code>Stop</code>, <code>RouteStop</code>, <code>Vehicle</code>, <code>Trip</code>, <code>Driver</code>, <code>Station</code>, <code>StationGate</code>, <code>TrainRoute</code></td></tr><tr><td><strong>Fare</strong></td><td><code>FareRule</code> (versioned), <code>FareCalculation</code>, <code>Concession</code>, <code>TransferRule</code></td></tr><tr><td><strong>Journey</strong></td><td><code>Journey</code>, <code>JourneyLeg</code></td></tr><tr><td><strong>Payment</strong></td><td><code>Payment</code>, <code>Wallet</code>, <code>Settlement</code></td></tr><tr><td><strong>Ticketing</strong></td><td><code>Ticket</code>, <code>QrCredential</code>, <code>TicketValidation</code>, <code>VehicleQrCredential</code></td></tr><tr><td><strong>Field ops</strong></td><td><code>Shift</code>, <code>Trip</code>, <code>Manifest</code></td></tr><tr><td><strong>Assurance</strong></td><td><code>Complaint</code></td></tr><tr><td><strong>Governance</strong></td><td><code>AuditEvent</code> (append-only, hash-chained), <code>Notification</code></td></tr></tbody></table>
+<h3 id="3-10-1-security-relevant-schema-decisions">3.10.1 Security-relevant schema decisions</h3>
+<table><thead><tr><th>Decision</th><th>Reason</th></tr></thead><tbody><tr><td>OTP codes stored only as a <strong>hash with a per-challenge salt</strong></td><td>A database leak must not yield usable login codes. Six digits is ~1M possibilities, trivially brute-forceable offline without a salt</td></tr><tr><td>Refresh tokens stored as <strong>hashes only</strong>, revocable per device</td><td>One revocation per lost device rather than a global credential reset</td></tr><tr><td>Money as <strong>integer fils</strong> with <code>Decimal</code> coordinates</td><td>Never floating point for money; <code>Decimal(9,6)</code> for coordinates</td></tr><tr><td>Foreign keys with <strong>cascade only where deletion is intended</strong></td><td>Ticket history must not vanish with a user record</td></tr><tr><td><code>idempotencyKey</code> <strong>UNIQUE</strong></td><td>Invariant I2 at the database layer</td></tr><tr><td><code>fareRuleVersion</code> <strong>NOT NULL</strong> on Ticket</td><td>Invariant I3 at the schema layer</td></tr><tr><td><code>QrCredential</code> holds <strong>identifiers only</strong></td><td>Invariant I4 at the schema layer</td></tr><tr><td><code>AuditEvent</code> has <strong>no update path</strong> in application code</td><td>Invariant I5; corrections are new rows</td></tr></tbody></table>
+<hr />
+<h1 id="part-iv-technical-procedures">Part IV — Technical Procedures</h1>
+<p>These are the operating procedures the Bureau will run day to day. Each states the <strong>trigger</strong>, the <strong>actor</strong>, the <strong>system behaviour</strong>, the <strong>control evidence produced</strong>, and the <strong>failure handling</strong>.</p>
+<p>Every endpoint below is live in the inspected build. Where a procedure requires a component that is specified but not yet implemented, it is marked <strong>[Phase 2]</strong> and described honestly.</p>
+<hr />
+<h2 id="4-1-procedure-1-fare-rule-drafting-approval-and-activation">4.1 Procedure 1 — Fare rule drafting, approval and activation</h2>
+<p><strong>Purpose:</strong> ensure every price a passenger is charged is traceable to an approved, versioned policy, and that no single person can change it alone.</p>
+<h3 id="4-1-1-sequence">4.1.1 Sequence</h3>
+<pre class="code"><code> AUTHOR (Bureau admin / Finance)          APPROVER (Bureau admin / Finance / Auditor)
+ ──────────────────────────────            ──────────────────────────────────────────
+ POST /admin/fare-rules
+   • Rule created as DRAFT
+   • version auto-incremented
+   • changeReason REQUIRED
+        │
+        ▼
+   [separate human reviews the draft]
+        │
+        ▼
+ POST /admin/fare-rules/:id/activate  ───►  • Re-reads author from database
+                                           • REFUSES if caller == draft author
+                                           • Prior version → SUPERSEDED
+                                           • New version → ACTIVE
+                                           • effectiveFrom set
+                                           • AuditEvent written (actor, before/after, reason)</code></pre>
+<h3 id="4-1-2-control-rules">4.1.2 Control rules</h3>
+<table><thead><tr><th>Rule</th><th>Enforcement</th></tr></thead><tbody><tr><td>A fare rule cannot be edited in place</td><td>Revising creates a <strong>new version</strong>; the old version is retained</td></tr><tr><td>The draft's author cannot approve it</td><td>Checked in the service layer against the persisted author id</td></tr><tr><td>Approval requires a stated reason</td><td><code>changeReason</code> is required and stored</td></tr><tr><td>Every version change is audited</td><td><code>AuditEvent</code> with old and new values</td></tr></tbody></table>
+<h3 id="4-1-3-why-versioning-is-non-negotiable">4.1.3 Why versioning is non-negotiable</h3>
+<p>Without it, a fare revision silently rewrites history: a passenger disputing a charge from eight months ago cannot be shown what the fare <em>was</em> at the time, because the number has changed. With versioning, every ticket pins the exact rule version used, so any historical fare is reproducible from stored inputs — for years, and across administrative turnover.</p>
+<h3 id="4-1-4-failure-handling">4.1.4 Failure handling</h3>
+<p>A fare change that would leave <strong>no active rule</strong> for a served zone-pair is rejected. The Bureau cannot accidentally fare a route to zero or to infinity; a gap is visible as a coverage report before it becomes a passenger dispute.</p>
+<hr />
+<h2 id="4-2-procedure-2-fare-calculation">4.2 Procedure 2 — Fare calculation</h2>
+<p><strong>Purpose:</strong> compute the correct fare from published policy, server-side, and produce a record that explains itself.</p>
+<h3 id="4-2-1-selection-algorithm">4.2.1 Selection algorithm</h3>
+<p>Fare rules are ranked by <strong>specificity</strong>, most specific first:</p>
+<table><thead><tr><th>Factor</th><th>Score added</th></tr></thead><tbody><tr><td>Route-specific rule</td><td>+8</td></tr><tr><td>Operator-specific rule</td><td>+4</td></tr><tr><td>Origin <strong>and</strong> destination zone</td><td>+4</td></tr><tr><td>One zone only</td><td>+2</td></tr><tr><td>Distance band</td><td>+2</td></tr></tbody></table>
+<p>Final score is <code>specificity × 1000 + version</code>, so at equal specificity the <strong>later version</strong> wins. A route-and-zone rule therefore beats a citywide zone rule, which beats a bare citywide mode rule.</p>
+<h3 id="4-2-2-calculation-sequence">4.2.2 Calculation sequence</h3>
+<pre class="code"><code>1. Filter rules: must be ACTIVE, effective at the travel time, and matching
+   mode / route / operator / zones / distance band.
+2. Rank by specificity; take the highest.
+3. distanceFare = round(perKmFils × distanceKm)        ← rounded to whole fils
+4. subtotal     = baseFare + distanceFare
+5. Apply concession discount (if an approved concession is held)
+6. Apply transfer discount (second leg, if within the transfer window)
+7. floored      = max(subtotal, minimumFare)          ← floor BEFORE discount
+8. total        = max(0, floored - discount)</code></pre>
+<p><strong>Ordering rule that matters:</strong> the minimum-fare floor is applied <strong>before</strong> discounts. Applying it afterwards would allow a 100% concession on a below-minimum fare to drive the result negative. Non-negativity is then clamped as a final belt-and-braces guard.</p>
+<h3 id="4-2-3-the-returned-breakdown">4.2.3 The returned breakdown</h3>
+<p>Every calculation returns an explanation, not just a number:</p>
+<pre class="code"><code>Rule ZONE-1-3 v2 (BUS) applied:
+base 1500 + distance 786 - discount 0 = 2286 fils</code></pre>
+<p>This is what allows a Bureau officer answering a fare dispute to show <em>why</em> a passenger was charged a specific amount.</p>
+<h3 id="4-2-4-failure-handling-fail-closed-visibly">4.2.4 Failure handling — fail closed, visibly</h3>
+<p><strong>If no rule matches, the engine does not invent a price.</strong> It applies a configurable fallback base, sets <code>usedFallback: true</code>, and records an explanation naming the condition. This is deliberate: inventing a fare would be worse than surfacing a zero, and the flag guarantees the event is visible to monitoring rather than being a silent wrong charge. The Bureau should treat a rising fallback rate as a fare-coverage alarm.</p>
+<hr />
+<h2 id="4-3-procedure-3-journey-planning">4.3 Procedure 3 — Journey planning</h2>
+<p><strong>Purpose:</strong> give a passenger a correct, affordable, explainable route, and persist the quote so the purchase can be verified against it.</p>
+<h3 id="4-3-1-sequence">4.3.1 Sequence</h3>
+<pre class="code"><code> TRIGGER  Passenger selects origin + destination (or accepts a GPS "nearest stop")
+    │
+    ├─► GET /stops/nearby?lat&amp;lng&amp;radius
+    │       Server ranks ALL stops by great-circle distance.
+    │       (Deliberately server-side: a device-side search would rank only the
+    │        25 stops that happened to sort near "A", snapping a passenger to
+    │        the start of the alphabet instead of the stop they are standing at.)
+    │
+    └─► POST /journeys/plan { originStopId, destinationStopId, departureTime }
+            │
+            ├─ Build candidates:
+            │     • DIRECT: any route serving both stops in the correct direction
+            │     • TRANSFER: one interchange via a shared stop
+            │
+            ├─ Price each leg through the SHARED fare engine
+            │     (never recomputed — one implementation of quoting rules)
+            │
+            ├─ Apply transfer rule (e.g. 80% retained on the 2nd leg within 60 min)
+            │
+            ├─ Rank by total fare, then duration
+            │
+            └─ PERSIST the best-ranked option as Journey + FareCalculation
+                    │
+                    └─► Returns journeyId — this is what the client must
+                        send to buy, because purchase re-verifies the amount
+                        against the stored calculation</code></pre>
+<h3 id="4-3-2-why-only-the-top-option-is-purchasable">4.3.2 Why only the top option is purchasable</h3>
+<p>The response returns multiple options, but <strong>only the persisted, best-ranked option carries a <code>journeyId</code></strong>. The others were quotes the passenger declined; they have no stored fare calculation, so there is nothing to verify a payment against. A quote that was never written down cannot be checked — so the client must re-plan to buy.</p>
+<p>This is a deliberate constraint, not an inconvenience: it removes any possibility of a client naming a price the server never computed.</p>
+<h3 id="4-3-3-deliberate-simplicity">4.3.3 Deliberate simplicity</h3>
+<p>The planner is direct-ride-plus-one-transfer, not a shortest-path search over a full timetable. The stated reason in the code is worth repeating: <strong>when a passenger disputes a fare, the option must be explainable.</strong> An opaque algorithm cannot be defended to a citizen. A simple one can be shown on screen.</p>
+<p><code>freshness</code> is returned on every journey and is currently <strong><code>ESTIMATED</code></strong>, never <code>REAL_TIME</code>, because no live GPS feed is wired up. <strong>[Phase 2]</strong> connects the AACRA ITS feed; the field already exists so that downstream consumers must handle freshness explicitly rather than assuming real-time.</p>
+<h3 id="4-3-4-timings">4.3.4 Timings</h3>
+<p>Durations derive from route distance at a constant average speed plus a fixed boarding allowance per stop. These are placeholders calibrated in the pilot (§7.3). The Bureau should expect to replace them with ITS-sourced actual running times.</p>
+<hr />
+<h2 id="4-4-procedure-4-purchase-payment-and-ticket-issuance">4.4 Procedure 4 — Purchase, payment and ticket issuance</h2>
+<p><strong>Purpose:</strong> take a passenger's money exactly once and issue exactly one valid ticket, through one path regardless of payment method.</p>
+<h3 id="4-4-1-the-critical-control-the-fare-is-re-derived-not-trusted">4.4.1 The critical control — the fare is re-derived, not trusted</h3>
+<pre class="code"><code> Client POST /payments {
+   journeyId, amountFils, method, idempotencyKey, payerPhone?
+ }
+        │
+        ▼
+ ┌──────────────────────────────────────────────────────────┐
+ │ SERVER: re-derive the fare from the stored FareCalculation│
+ │   The client-sent amount is treated as a CLAIM to be        │
+ │   CHECKED, never as the price.                             │
+ │   A passenger could otherwise POST amountFils:1 for a      │
+ │   44-birr ride — and the provider would charge one cent.   │
+ └──────────────────────────────────────────────────────────┘
+        │
+        ▼
+   Amount mismatch → REJECTED (no charge created)</code></pre>
+<p><strong>This is the single most important line of defence against fare theft at the API</strong>, and it is why a modified client cannot buy a 22.86 Birr ticket for 1 cent.</p>
+<h3 id="4-4-2-payment-state-machine">4.4.2 Payment state machine</h3>
+<pre class="code"><code>  CREATED → PENDING → REQUIRES_ACTION ──► (redirect URL — NOT confirmation)
+                   └► AUTHORIZED ──► CONFIRMED ──┐
+                                    └► FAILED / TIMEOUT / REVERSED
+                                                   │
+        PAYMENT_CONFIRMED ──────────────────────────┘
+                    │
+                    ▼  (single edge — invariant I1)
+            TICKET_ISSUED → VALID → VALIDATED → COMPLETED</code></pre>
+<h3 id="4-4-3-idempotency-the-double-tap-contract">4.4.3 Idempotency — the double-tap contract</h3>
+<p>The client generates an <code>idempotencyKey</code> <strong>once</strong>, before the first attempt, and reuses it for every retry of the <em>same</em> purchase. A new purchase gets a new key.</p>
+<table><thead><tr><th>Situation</th><th>System behaviour</th></tr></thead><tbody><tr><td>Passenger double-taps Pay</td><td>Both requests carry the same key → <strong>one charge</strong>, the second returns the first payment</td></tr><tr><td>Network drops the response, client retries</td><td>Same key → original payment returned, no second charge</td></tr><tr><td>Two devices race on the same key</td><td>Unique-violation caught, <strong>winning</strong> payment returned to both</td></tr><tr><td>Client replays a settled payment</td><td><code>initiate</code> refuses to re-open a terminal state</td></tr><tr><td>Two parallel requests on a fresh key</td><td>In-memory test repository deliberately reproduces the unique violation, so tests exercise the same race the database enforces</td></tr></tbody></table>
+<h3 id="4-4-4-provider-adapter-contract">4.4.4 Provider adapter contract</h3>
+<table><thead><tr><th>Rule</th><th>Reason</th></tr></thead><tbody><tr><td>Stale webhooks cannot undo a settled payment</td><td>Terminal states are immutable on webhook application</td></tr><tr><td>Non-authoritative states (<code>PENDING</code>, <code>AUTHORIZED</code>) are ignored</td><td>Only a terminal webhook advances the payment</td></tr><tr><td>Over-capture and over-refund are <strong>rejected</strong>, not clamped</td><td>Clamping would mask an integrator defect</td></tr><tr><td>Unknown provider <strong>raises</strong>, never silently no-ops</td><td>A missing adapter must be a loud failure, not a free ticket</td></tr></tbody></table>
+<p>The last row deserves emphasis for a revenue system: <strong>silently succeeding when the payment integration is missing is the same failure mode as handing out free tickets.</strong> The system is built to fail loudly instead.</p>
+<h3 id="4-4-5-ticket-issuance">4.4.5 Ticket issuance</h3>
+<p>On <code>CONFIRMED</code>, the system issues the ticket and signs a credential. Three properties make the credential safe:</p>
+<ul><li><strong>Deterministic signature</strong> — the same payload always yields the same signature.</li><li><strong>Stored nonce</strong> — the ticket history re-derives the QR from stored columns and   <strong>never re-signs</strong>. A fresh signature would carry a new nonce, invalidating any   screenshot the passenger already holds and looking like a replay to a validator.</li><li><strong>Explicit version field</strong> — an unknown credential version is rejected rather   than interpreted.</li></ul>
+<h3 id="4-4-6-assisted-cash-and-agent-sales">4.4.6 Assisted (cash and agent) sales</h3>
+<p>Cash sales flow through the <strong>same orchestrator</strong> as mobile payments, producing the same core records, with <code>collectedByStaffId</code> and <code>shiftId</code> attached. This is what makes shift reconciliation possible — an agent sale that bypassed the core would be revenue with no audit trail, and trivially forgeable.</p>
+<p>Two controls on the assisted path:</p>
+<ul><li>The officer <strong>cannot nominate a price</strong>. Fare re-derivation is identical.</li><li><code>shiftId</code> and <code>collectedByStaffId</code> are taken from the <strong>authenticated officer and   their open shift</strong>, never from the request body. Anything else would let one   officer file revenue against another's drawer.</li></ul>
+<p>A cash sale is refused outright when no shift is open.</p>
+<hr />
+<h2 id="4-5-procedure-5-ticket-validation-boarding-inspection">4.5 Procedure 5 — Ticket validation (boarding inspection)</h2>
+<p><strong>Purpose:</strong> determine, at the door, whether a passenger may board — and record the answer whether it is yes or no.</p>
+<h3 id="4-5-1-sequence">4.5.1 Sequence</h3>
+<pre class="code"><code> INSPECTOR  scans passenger QR with handheld
+    │
+    ▼
+ POST /validation/scan { qrString, tripId?, deviceId?, lat?, lng? }
+    │
+    ├─ 1. Parse credential → MALFORMED / UNSUPPORTED_VERSION → reject
+    ├─ 2. Select public key by keyId → UNKNOWN_KEY → reject
+    ├─ 3. Verify Ed25519 signature → BAD_SIGNATURE → reject
+    ├─ 4. Check time bounds → EXPIRED / NOT_YET_VALID → reject
+    ├─ 5. Load stored ticket → NOT_ISSUED / UNKNOWN_CREDENTIAL → reject
+    ├─ 6. Check ticket status (state machine) → ALREADY_USED / REVOKED → reject
+    ├─ 7. Check trip and mode binding → WRONG_TRIP / WRONG_MODE → reject
+    └─ 8. Accept → ticket transitions VALID → VALIDATED
+             │
+             ▼
+       EVERY outcome written to TicketValidation, including refusals</code></pre>
+<h3 id="4-5-2-the-outcome-vocabulary">4.5.2 The outcome vocabulary</h3>
+<p>Eleven distinct outcomes are defined, so that an officer is never given a confusing code. This matters because <strong>an officer told <code>NOT_ISSUED</code> when the truth is <code>EXPIRED</code> sends a paying passenger away from a vehicle they were entitled to board.</strong> The mapping is a deliberate lookup table rather than nested conditionals, because this is the one place where a confusing code does real damage.</p>
+<table><thead><tr><th>Cryptographic outcome</th><th>Reported as</th><th>Officer-facing meaning</th></tr></thead><tbody><tr><td><code>MALFORMED</code>, <code>UNSUPPORTED_VERSION</code>, <code>NOT_YET_VALID</code></td><td><code>INVALID</code></td><td>Not a readable ticket</td></tr><tr><td><code>BAD_SIGNATURE</code></td><td><code>INVALID_SIGNATURE</code></td><td>Forged or altered — escalate</td></tr><tr><td><code>EXPIRED</code></td><td><code>EXPIRED</code></td><td>Outside its validity window</td></tr><tr><td><code>UNKNOWN_KEY</code></td><td><code>UNKNOWN_CREDENTIAL</code></td><td>Not issued by this system</td></tr></tbody></table>
+<h3 id="4-5-3-refusals-are-recorded-not-discarded">4.5.3 Refusals are recorded, not discarded</h3>
+<p><strong>Every scan is written to the database, including every rejection.</strong> A fraud pattern is only visible if refusals are recorded with the same fidelity as acceptances. A failed scan is therefore not an error path that quietly returns 4xx and leaves no trace — it is a row with outcome, reason, officer, device, trip and coordinates.</p>
+<h3 id="4-5-4-the-http-status-decision">4.5.4 The HTTP status decision</h3>
+<p>Validation returns <strong>HTTP 200 even for a rejection.</strong> The HTTP status answers "did the server accept your request?"; the <code>accepted</code> field answers "may this passenger board?" Collapsing the two would force every handheld to treat an invalid ticket as a network error, and would fill the server log with 400s that look like client faults when they are in fact successful fraud detections.</p>
+<h3 id="4-5-5-availability-principle-the-officer-s-answer-comes-first">4.5.5 Availability principle — the officer's answer comes first</h3>
+<p>If the audit write fails, the system <strong>logs loudly and still returns the refusal</strong>. The officer standing at the door needs an answer more than the system needs an audit row. The reference is returned as <code>UNRECORDED</code> so the gap is visible rather than silent.</p>
+<h3 id="4-5-6-offline-operation">4.5.6 Offline operation</h3>
+<p><strong>[Phase 2 — schema and client queue ready, server reconciliation pending]</strong></p>
+<p>Design commitment, which the Bureau should require in any acceptance test:</p>
+<ol><li>The handheld holds the <strong>public key only</strong> and verifies the Ed25519 signature    <strong>locally</strong>. Offline validation is cryptographically real, not a local boolean.</li><li>Results queue locally and sync when connectivity returns.</li><li>The server reconciles queued scans, resolving conflicts by the ticket state    machine — a second scan of an already-validated ticket is <code>ALREADY_USED</code>, never    a double validation.</li><li>Each queued record carries <code>isOffline</code> and <code>syncState</code> so the Bureau can    distinguish online from reconciled-offline validations in reporting.</li></ol>
+<p>A clock-drift endpoint already exists so that handheld clock skew can be measured rather than guessed at.</p>
+<h3 id="4-5-7-privacy-limit-on-inspection-history">4.5.7 Privacy limit on inspection history</h3>
+<p>An officer's scan history returns <strong>only that officer's own scans.</strong> A network-wide feed of who inspected whom, where and when is surveillance data with no operational use on a handheld. Oversight queries belong to the audit surface, under Bureau control. The Bureau should note this design decision, because it constrains how the system can be used for staff performance monitoring.</p>
+<hr />
+<h2 id="4-6-procedure-6-shift-and-cash-reconciliation">4.6 Procedure 6 — Shift and cash reconciliation</h2>
+<p><strong>Purpose:</strong> bring cash revenue under a control environment. This is the procedure that closes the gap identified in §2.1.2, and it is the Bureau's strongest financial-control argument for the programme.</p>
+<h3 id="4-6-1-sequence">4.6.1 Sequence</h3>
+<pre class="code"><code> SHIFT OPEN                                    SHIFT CLOSE
+ ──────────                                    ───────────
+ Agent/officer declares                         Officer declares physical
+ opening float                                    cash in drawer
+       │                                              │
+       ▼                                              ▼
+ POST /staff/shifts                          POST /staff/shifts/:id/declare
+   • openingCashFils recorded                  • declaredCashFils recorded
+   • optional vehicleId / tripId                │
+   • status = OPEN                             ▼
+                                         ┌──────────────────────────────┐
+                                         │ VARIANCE COMPUTED            │
+                                         │  expected = openingFloat     │
+                                         │            + Σ sales        │
+                                         │  declared = officer's count  │
+                                         │  variance  = declared −      │
+                                         │              expected        │
+                                         │  status → CLOSED or DISPUTED │
+                                         └──────────────────────────────┘
+                                                    │
+                                                    ▼
+                              GET /staff/shifts/variances
+                              (Supervisor / Finance / Bureau admin only)</code></pre>
+<h3 id="4-6-2-control-properties">4.6.2 Control properties</h3>
+<table><thead><tr><th>Property</th><th>Implementation</th><th>Why it matters</th></tr></thead><tbody><tr><td>Opening float must be <strong>≥ 0</strong></td><td>Validated at the boundary</td><td>A negative float would invert the variance calculation, turning a missing float into an apparent surplus</td></tr><tr><td>One open shift per officer</td><td>Checked before opening</td><td>Otherwise a sale could be attributed ambiguously</td></tr><tr><td>Sales refused with <strong>no open shift</strong></td><td><code>requireOpenShift</code></td><td>No revenue without a drawer to reconcile against</td></tr><tr><td>Officer <strong>cannot nominate the shift</strong></td><td>Taken from the authenticated principal</td><td>One officer cannot file revenue against another's drawer</td></tr><tr><td>Variance visibility is <strong>role-narrowed</strong></td><td>Supervisors and finance only</td><td>Cash shortfalls are a supervisory matter, not every officer's business</td></tr><tr><td>Declaring is a <strong>financial fact</strong>, not a view</td><td>Returns HTTP 201</td><td>A variance may now exist that did not before</td></tr></tbody></table>
+<h3 id="4-6-3-the-idempotent-replay-trap-and-why-it-is-handled">4.6.3 The idempotent-replay trap — and why it is handled</h3>
+<p>Consider: an officer's tablet retries a cash sale while their shift has already been closed and a new one opened. If the system echoed the <em>currently open</em> shift, the officer would be told their new drawer is holding a sale recorded against an earlier one. That sale then fails to reconcile and <strong>looks like missing money</strong> — creating a false fraud signal from a correct system.</p>
+<p>The system therefore returns the shift the <strong>payment actually belongs to</strong>, and reports the shift reference only when it matches the current one. This is a small detail with a disproportionate effect on operator trust.</p>
+<h3 id="4-6-4-what-the-bureau-gains">4.6.4 What the Bureau gains</h3>
+<p>Before: cash shortfalls were discovered by suspicion or expensive after-the-fact audit.</p>
+<p>After: <strong>every shift has an opening float, a sales total, a declared figure and a variance</strong>, all attributable to a named officer and time window. The variance trend becomes a measurable operational indicator, and it becomes possible to distinguish systematic process weakness from individual dishonesty — because there is finally a baseline to compare against.</p>
+<hr />
+<h2 id="4-7-procedure-7-complaints-and-service-assurance">4.7 Procedure 7 — Complaints and service assurance</h2>
+<p><strong>Purpose:</strong> convert anecdotal service-quality reporting into structured, geolocated, measurable data.</p>
+<h3 id="4-7-1-sequence">4.7.1 Sequence</h3>
+<pre class="code"><code> PASSENGER (may be anonymous)              STAFF
+ POST /complaints                        ────────────────►
+   • category (8-value taxonomy)            GET /complaints?status=…
+   • description (10–2000 chars)              ▲
+   • optional ticketId / paymentId / routeId  │
+   • optional lat/lng                        ▼
+   • → returns a reference          PATCH /complaints/:reference
+                                       • advance status
+                                       • attach resolution
+                                       • status → RESOLVED / CLOSED</code></pre>
+<h3 id="4-7-2-the-eight-complaint-categories">4.7.2 The eight complaint categories</h3>
+<p><code>SERVICE_QUALITY</code>, <code>OVERCHARGE</code>, <code>REFUND_REQUEST</code>, <code>SAFETY</code>, <code>DISCRIMINATION</code>, <code>LOST_PROPERTY</code>, <code>CLEANLINESS</code>, <code>OTHER</code>.</p>
+<p><code>OVERCHARGE</code> is the category that connects assurance directly to revenue control: a confirmed overcharge is simultaneously a refund obligation and evidence of fare non-compliance on a specific route or operator.</p>
+<h3 id="4-7-3-design-decisions-worth-noting">4.7.3 Design decisions worth noting</h3>
+<ul><li><strong>Citizens can complain without being staff.</strong> The filing route is deliberately   the one route without a staff guard. A citizen must be able to complain without   holding a staff account. It is still marked public, so an anonymous caller gets a   <strong>reference</strong> back rather than a bare 401.</li><li><strong>Signed-in complaints attach to the passenger</strong> and appear in their history,   because a token is read when present even on a public route.</li><li><strong>Description length is bounded at both ends.</strong> A floor stops "no" becoming a   record that wastes an officer's time; a ceiling stops a pasted document filling a   column.</li><li><strong>Location capture is optional</strong>, because requiring GPS would suppress complaints   from passengers without data service or battery.</li></ul>
+<hr />
+<h2 id="4-8-procedure-8-identity-authentication-and-session-security">4.8 Procedure 8 — Identity, authentication and session security</h2>
+<h3 id="4-8-1-citizen-sign-in">4.8.1 Citizen sign-in</h3>
+<pre class="code"><code>1. POST /auth/request-otp  { phone }        phone validated as canonical Ethiopian
+                                           mobile format (+251[79]XXXXXXXX)
+2. Six-digit code delivered by SMS
+3. POST /auth/verify-otp   { phone, code }
+     • codeHash + per-challenge salt compared
+     • attempt counter, max 5, then challenge invalidated
+     • expiry enforced
+     • account found or provisioned (User + Passenger together)
+     • JWT + refresh token issued</code></pre>
+<p><strong>There is no separate staff login.</strong> Staff sign in through the identical OTP flow and hold an identical JWT; what separates a citizen from staff is <code>StaffGuard</code>, which checks for an active, unterminated <code>Staff</code> record on every request. One credential store, one token path — one thing to revoke, one place a bug can hide.</p>
+<h3 id="4-8-2-security-properties">4.8.2 Security properties</h3>
+<table><thead><tr><th>Property</th><th>Implementation</th></tr></thead><tbody><tr><td>OTP codes stored as <strong>hash + per-challenge salt</strong></td><td>A database leak yields no usable codes; the salt defeats precomputation over the ~1M six-digit space</td></tr><tr><td>Brute force limited</td><td>Attempt counter with a maximum, then the challenge is destroyed</td></tr><tr><td>Refresh tokens stored as <strong>hashes</strong>, revocable per device</td><td>A lost device is revoked individually, not by a global credential reset</td></tr><tr><td>Account enumeration resisted</td><td>Identical refusal text whether a number is unknown or simply not staff</td></tr><tr><td>MFA supported for privileged staff</td><td><code>mfaEnabled</code> / <code>mfaSecretEnc</code> on <code>Staff</code> for high-risk permissions</td></tr><tr><td>Staff role re-read from database per request</td><td>A demotion takes effect immediately, not at token expiry</td></tr></tbody></table>
+<h3 id="4-8-3-development-backdoor-deliberately-hard-to-leave-open">4.8.3 Development backdoor — deliberately hard to leave open</h3>
+<p>A development-only sign-in exists that skips the SMS round trip. It is gated by <strong>both</strong> <code>DEV_STAFF_LOGIN=true</code> <strong>and</strong> <code>NODE_ENV ≠ production</code>, because either condition alone would be dangerous: the flag alone would open it on a deployed environment that merely inherited the <code>.env</code>; the environment check alone would open it on a production build pointed at a development database.</p>
+<p>It also <strong>never creates a <code>Staff</code> row</strong> — it requires an existing, active, unterminated one. It is a shortcut past the SMS round trip, not a way to mint an administrator. When disabled, the route is <strong>never registered</strong>, so it answers 404 rather than existing-but-hidden; a capability hidden in the UI while a live endpoint remains behind it would be worse than having neither. Every use is logged loudly.</p>
+<p><strong>Recommendation to the Bureau:</strong> require this route to be absent in the pilot deployment, and verify by requesting it and confirming a 404.</p>
+<hr />
+<h2 id="4-9-procedure-9-governance-reporting">4.9 Procedure 9 — Governance reporting</h2>
+<p><strong>Purpose:</strong> give Bureau officers a live, role-scoped view of the network.</p>
+<h3 id="4-9-1-reporting-surfaces">4.9.1 Reporting surfaces</h3>
+<table><thead><tr><th>Endpoint</th><th>Content</th><th>Restricted to</th></tr></thead><tbody><tr><td><code>/dashboard/session</code></td><td>Who am I, what may I see</td><td>Any dashboard role</td></tr><tr><td><code>/dashboard/overview</code></td><td>Headline operational and revenue counters</td><td>Dashboard roles</td></tr><tr><td><code>/dashboard/revenue</code></td><td>Paginated revenue detail, filterable by status</td><td><strong>Finance roles only</strong></td></tr><tr><td><code>/dashboard/operations</code></td><td>Service volumes, trips, validations</td><td>Dashboard roles</td></tr><tr><td><code>/dashboard/network</code></td><td>Route, stop, vehicle, operator inventory</td><td>Dashboard roles</td></tr><tr><td><code>/dashboard/fares</code></td><td>Fare rule versions and current policy</td><td><strong>Finance roles only</strong></td></tr><tr><td><code>/dashboard/passengers</code></td><td>Passenger volume trends</td><td>Dashboard roles</td></tr><tr><td><code>/dashboard/database</code></td><td>DB size, row counts, pool, index usage</td><td><strong>Bureau admin only</strong></td></tr></tbody></table>
+<h3 id="4-9-2-why-the-restrictions-are-shaped-this-way">4.9.2 Why the restrictions are shaped this way</h3>
+<ul><li><strong>Operational counts and money are separated.</strong> An operator admin legitimately   needs to see their own takings, but a supervisor needs service volumes, not other   people's margins.</li><li><strong>Database internals are narrower than everything else.</strong> Table names, index   names and connection counts describe how the system is <em>built</em> rather than how it   is <em>performing</em>, and are useful mainly to someone about to change it. An auditor   can see the operational figures they are attesting to; only administration roles   see the plumbing behind them.</li><li><strong>The dashboard is read-only by construction</strong> — no write endpoints exist on the   controller at all.</li></ul>
+<h3 id="4-9-3-operator-scoping">4.9.3 Operator scoping</h3>
+<p>Every query is scoped by the operator boundary. An <code>OPERATOR_ADMIN</code> sees their own fleet and revenue; bureau and finance roles see city-wide. This is enforced in the service layer on every query, not by filtering the response after the fact.</p>
+<h3 id="4-9-4-deployment-note">4.9.4 Deployment note</h3>
+<p>The dashboard is served from disk with caching explicitly disabled (<code>maxAge: 0</code>), so an officer who has bookmarked the URL is never shown a stale build of the reporting screen. It is same-origin, so the browser sends the bearer token with no CORS preflight and no wildcard origin has to be permitted.</p>
+<hr />
+<h2 id="4-10-procedure-10-audit-and-tamper-evidence">4.10 Procedure 10 — Audit and tamper evidence</h2>
+<p><strong>Purpose:</strong> make privileged actions attributable and make bulk tampering detectable after the fact.</p>
+<h3 id="4-10-1-what-is-audited">4.10.1 What is audited</h3>
+<p>Refunds, overrides, voids, fare changes, cash declarations, device lifecycle, role changes, staff sales, complaint resolutions — every action that moves money, changes policy or grants access.</p>
+<h3 id="4-10-2-record-structure">4.10.2 Record structure</h3>
+<p>Each <code>AuditEvent</code> carries: <code>actorId</code>, <code>actorType</code>, <code>actorRole</code>, <code>action</code>, <code>resourceType</code>, <code>resourceId</code>, <code>timestamp</code>, <code>deviceId</code>, <code>ipAddress</code>, <code>userAgent</code>, <code>oldValue</code>, <code>newValue</code>, <code>reason</code>, dual-control <code>approvalId</code>, and the hash chain.</p>
+<h3 id="4-10-3-two-properties-that-make-this-useful-to-an-auditor">4.10.3 Two properties that make this useful to an auditor</h3>
+<p><strong>Append-only.</strong> There is no update path in the application for <code>AuditEvent</code>. Corrections are new rows. The schema comment is explicit: tamper-evidence via a chained hash, where each event carries <code>previousHash</code> and <code>eventHash</code>.</p>
+<p><strong>Bulk tampering is detectable.</strong> Because each event hashes its predecessor, deleting or editing a range breaks every subsequent link. An auditor can therefore verify the <em>continuity</em> of the log, not merely the presence of rows. This is a materially stronger guarantee than an ordinary application log.</p>
+<h3 id="4-10-4-dual-control-on-high-risk-actions">4.10.4 Dual control on high-risk actions</h3>
+<p>The schema carries <code>approvalId</code> and <code>approvalByStaffId</code> explicitly, so an approval-required action is attributable to <strong>both</strong> the requester and the approver. This is what makes the fare-approval workflow auditable as a two-person control rather than a single click.</p>
+<hr />
+<h2 id="4-11-api-reference-summary">4.11 API reference summary</h2>
+<p>All routes are served under <code>/api/v1</code>. Authentication is bearer JWT.</p>
+<table><thead><tr><th>Group</th><th>Routes</th></tr></thead><tbody><tr><td><strong>Auth</strong></td><td><code>POST /auth/request-otp</code>, <code>POST /auth/verify-otp</code>, <code>POST /auth/refresh</code>, <code>GET /auth/staff-session</code></td></tr><tr><td><strong>Stops / Journeys</strong></td><td><code>GET /stops</code>, <code>GET /stops/nearby</code>, <code>POST /journeys/plan</code>, <code>GET /journeys/mine</code></td></tr><tr><td><strong>Payments</strong></td><td><code>POST /payments</code>, <code>GET /payments/:id</code>, <code>GET /payments/:id/ticket</code></td></tr><tr><td><strong>Tickets</strong></td><td><code>GET /tickets/mine</code></td></tr><tr><td><strong>Validation</strong></td><td><code>POST /validation/scan</code>, <code>GET /validation/mine</code>, <code>GET /validation/clock</code></td></tr><tr><td><strong>Driver</strong></td><td><code>GET /driver/trips</code>, <code>GET /driver/trips/:id/manifest</code>, <code>POST /driver/trips/:id/start</code>, <code>POST /driver/trips/:id/complete</code></td></tr><tr><td><strong>Staff / Shifts</strong></td><td><code>POST /staff/shifts</code>, <code>GET /staff/shifts/mine</code>, <code>POST /staff/shifts/:id/declare</code>, <code>GET /staff/shifts/variances</code>, <code>POST /staff/sales</code>, <code>GET /staff/devices</code>, <code>POST /staff/devices/:deviceId/enroll</code></td></tr><tr><td><strong>Admin</strong></td><td><code>GET/POST /admin/stops</code>, <code>PATCH /admin/stops/:id</code>, <code>PUT /admin/stops/:id/active</code>, same for <code>vehicles</code>, <code>routes</code>, plus <code>PUT /admin/routes/:id/stops</code>, <code>GET/POST /admin/fare-rules</code>, <code>POST /admin/fare-rules/:id/activate</code>, <code>GET /admin/operators</code>, <code>GET /admin/staff</code>, <code>PATCH /admin/staff/:id</code></td></tr><tr><td><strong>Complaints</strong></td><td><code>POST /complaints</code>, <code>GET /complaints</code>, <code>GET /complaints/mine</code>, <code>PATCH /complaints/:reference</code></td></tr><tr><td><strong>Dashboard</strong></td><td>As listed in §4.9.1</td></tr><tr><td><strong>Health / Docs</strong></td><td><code>GET /health</code>, <code>GET /api/docs</code> (non-production only)</td></tr></tbody></table>
+<h3 id="4-11-1-input-validation-policy">4.11.1 Input validation policy</h3>
+<p>A global validation pipe enforces <code>whitelist: true</code> and <code>forbidNonWhitelisted: true</code> with transformation. Unknown fields are <strong>stripped and rejected</strong>, so a client cannot smuggle extra columns through a DTO into the persistence layer.</p>
+<p>Explicitly bounded inputs include: QR strings (20–2048 chars — an inspector's camera produces a few hundred bytes, so anything approaching the bound is not a ticket, and an unbounded string would otherwise be written verbatim into an audit column), phone numbers (canonical Ethiopian format), coordinates (latitude and longitude validators), and all monetary values (integers, minimums applied).</p>
+<hr />
+<h2 id="4-12-honest-capability-statement">4.12 Honest capability statement</h2>
+<p>A proposal that overstates what exists loses the Bureau's trust at the first technical review. This section states precisely what is built, what is partial, and what is not started.</p>
+<h3 id="4-12-1-fully-implemented-and-tested">4.12.1 Fully implemented and tested</h3>
+<table><thead><tr><th>Capability</th><th>Evidence</th></tr></thead><tbody><tr><td>Fare engine with specificity ranking, versioning, concessions, transfers, floors</td><td><code>fare-engine.ts</code> + 21 tests</td></tr><tr><td>Ticket state machine with single-edge issuance</td><td><code>ticket-state-machine.ts</code> + 24 tests</td></tr><tr><td>Payment orchestrator with idempotency, terminal-state immutability, provider contract</td><td><code>payment-orchestrator.ts</code> + 23 tests</td></tr><tr><td>Ed25519 credential signing and verification with canonical serialisation</td><td><code>credential-signer.ts</code> + 18 tests</td></tr><tr><td>Centralised 12-role authorisation policy with operator boundary</td><td><code>policy.ts</code> + 25 tests</td></tr><tr><td>Journey planning with direct and one-transfer routing</td><td><code>journey-planner.service.ts</code></td></tr><tr><td>Validation scan pipeline with 11-outcome vocabulary and refusal recording</td><td><code>validation.service.ts</code></td></tr><tr><td>Shift and cash reconciliation with variance</td><td><code>identity.controller/service.ts</code></td></tr><tr><td>Complaints workflow with 8 categories</td><td><code>assurance.controller/service.ts</code></td></tr><tr><td>Governance dashboard, read-only, role-scoped</td><td><code>dashboard.*</code> + 20 tests</td></tr><tr><td>OTP auth, hashed codes with salt, revocable refresh tokens</td><td><code>auth.*</code></td></tr><tr><td>Admin CRUD for stops, vehicles, routes, fare rules, staff</td><td><code>admin.*</code></td></tr><tr><td>~40-model schema with invariants as constraints</td><td><code>schema.prisma</code></td></tr><tr><td>Docker Compose for PostgreSQL, Redis, TimescaleDB</td><td><code>infra/docker-compose.yml</code></td></tr></tbody></table>
+<h3 id="4-12-2-implemented-but-using-a-mock-provider">4.12.2 Implemented but using a mock provider</h3>
+<p>The payment integration currently runs against a <strong>mock adapter</strong>, not live Telebirr or CBE Birr. The orchestration, state machine, idempotency and issuance guarantees are fully real and tested — but <strong>no live money has moved through the inspected build</strong>.</p>
+<p>Live provider integration is <strong>Phase 1 pilot work</strong> (§6.2), and requires commercial agreements with the providers themselves, which is outside the software scope.</p>
+<h3 id="4-12-3-partially-implemented">4.12.3 Partially implemented</h3>
+<table><thead><tr><th>Capability</th><th>State</th><th>Needed</th></tr></thead><tbody><tr><td><strong>Offline validation</strong></td><td>Staff app has a local scan queue and offline flag fields; the server-side reconciliation endpoint does not exist</td><td>Reconciliation endpoint + conflict resolution by state machine</td></tr><tr><td><strong>Live vehicle tracking</strong></td><td>Time-series store provisioned and <code>DataFreshness</code> enum defined; no ITS ingestion</td><td>AACRA ITS feed integration</td></tr><tr><td><strong>Real-time journey freshness</strong></td><td>Always returns <code>ESTIMATED</code></td><td>Timetable or ITS-derived timings</td></tr><tr><td><strong>Refunds</strong></td><td>Payment states and ticket states exist; no refund endpoint exposed</td><td>Refund workflow with dual control</td></tr><tr><td><strong>Settlement to operators</strong></td><td><code>Operator.settlementAccount</code> and <code>Settlement</code> model exist; no settlement engine</td><td>Settlement runs</td></tr><tr><td><strong>Wallet top-up</strong></td><td><code>Wallet</code> model exists</td><td>Top-up flows</td></tr><tr><td><strong>Concession proof verification</strong></td><td>Concessions modelled and applied</td><td>Document/ID verification workflow</td></tr><tr><td><strong>Notification delivery</strong></td><td><code>Notification</code> model exists</td><td>Delivery integration</td></tr></tbody></table>
+<h3 id="4-12-4-not-started">4.12.4 Not started</h3>
+<ul><li><strong>Taxi and rail modes</strong> — data models present, journey planner handles bus only</li><li><strong>Native Amharic UI</strong> — Amharic stop and route <em>names</em> are stored and served;   interface strings are English</li><li><strong>Multi-language voice/announcement</strong> for accessibility</li><li><strong>Machine-readable open-data portal</strong> for the public</li><li><strong>Offline-first ticket wallet with pre-fetched credentials</strong></li></ul>
+<h3 id="4-12-5-what-we-ask-the-bureau-to-require-as-acceptance-evidence">4.12.5 What we ask the Bureau to require as acceptance evidence</h3>
+<p>Rather than take our word for any of this, the Bureau should require:</p>
+<ol><li><strong>Automated test results</strong> for all 141 tests (7 suites, all passing), run in the    Bureau's presence.</li><li><strong>A live demonstration</strong> of the fare dispute workflow: issue a ticket, revise the    fare, and show that the old ticket still quotes the old rule version.</li><li><strong>A tamper-evidence demonstration</strong>: alter or delete an audit row, and show that    chain verification fails.</li><li><strong>A double-tap demonstration</strong>: fire two concurrent purchase requests and observe    one charge.</li><li><strong>A modified-client demonstration</strong>: attempt to purchase a ticket with a falsified    amount and observe rejection.</li><li><strong>Independent penetration testing</strong> before any citywide rollout.</li></ol>
+<hr />
+<h1 id="part-v-governance-security-and-data-protection">Part V — Governance, Security and Data Protection</h1>
+<h2 id="5-1-security-architecture">5.1 Security architecture</h2>
+<h3 id="5-1-1-defence-in-depth">5.1.1 Defence in depth</h3>
+<table><thead><tr><th>Layer</th><th>Control</th></tr></thead><tbody><tr><td><strong>Edge</strong></td><td>TLS termination, Helmet security headers, explicit CORS allow-list, rate limiting via Redis</td></tr><tr><td><strong>Authentication</strong></td><td>JWT bearer tokens, OTP for citizens, MFA supported for privileged staff, hashed refresh tokens</td></tr><tr><td><strong>Authorisation</strong></td><td>Two-guard chain — <code>JwtAuthGuard</code> then <code>StaffGuard</code> — then role, then operator boundary in the service layer</td></tr><tr><td><strong>Input</strong></td><td>Global <code>ValidationPipe</code> with whitelist and forbid-non-whitelisted; explicit length and range bounds on every field</td></tr><tr><td><strong>Cryptography</strong></td><td>Ed25519 signing, salted hashing for OTP codes, private keys server-side only</td></tr><tr><td><strong>Data</strong></td><td>Integer money, constrained schema, foreign keys, cascade only where intended</td></tr><tr><td><strong>Audit</strong></td><td>Append-only, hash-chained, actor/device/IP/reason on every privileged action</td></tr></tbody></table>
+<h3 id="5-1-2-the-two-guard-pattern">5.1.2 The two-guard pattern</h3>
+<p>Staff routes apply <code>JwtAuthGuard</code> <strong>then</strong> <code>StaffGuard</code>, in that order, and only then check roles. The first establishes <em>who is calling</em>; the second establishes <em>that they are staff and which role they hold</em>.</p>
+<p>This matters because a citizen's token is a valid API token. Without the second guard, a citizen could reach revenue data with their own valid token. The Bureau should verify in testing that a citizen token receives 403 on every <code>/dashboard/*</code> route.</p>
+<h3 id="5-1-3-configuration-safety">5.1.3 Configuration safety</h3>
+<p>Environment configuration is validated <strong>before</strong> anything touches the database, with a guard that names the offending variable, names any competing source, and <strong>redacts the password</strong>. This exists because Prisma's own error for a bad connection string points an operator at <code>schema.prisma</code> rather than at the environment variable they actually set — a costly misdiagnosis in production.</p>
+<p><code>.env</code> is loaded explicitly at startup, before the guard runs, because the Nest config module only reads it while building the dependency-injection container — several lines later. Without the explicit load, the guard would reject a perfectly good configuration file. Operator-exported variables are deliberately <strong>not</strong> overridden by the file, because a silently preferred <code>.env</code> would hide exactly the mislabelling this guard exists to diagnose.</p>
+<h2 id="5-2-data-protection-and-privacy">5.2 Data protection and privacy</h2>
+<p>Ethiopia's Personal Data Protection Proclamation and the Bureau's own data governance expectations should govern this programme. The system's design already supports the major requirements:</p>
+<table><thead><tr><th>Principle</th><th>Implementation</th></tr></thead><tbody><tr><td><strong>Data minimisation</strong></td><td>QR payloads contain no personal or commercial data (I4); a photograph of a ticket reveals nothing about its owner</td></tr><tr><td><strong>Purpose limitation</strong></td><td>An officer can retrieve <strong>only their own</strong> scan history; network-wide inspection surveillance is deliberately not exposed to field roles</td></tr><tr><td><strong>Storage limitation</strong></td><td>Refresh tokens hashed and revocable; OTP codes hashed with per-challenge salt and short expiry</td></tr><tr><td><strong>Access control</strong></td><td>12 roles, operator boundary enforced in the service layer, city-wide read restricted to bureau and finance</td></tr><tr><td><strong>Integrity</strong></td><td>Hash-chained audit log makes tampering detectable after the fact</td></tr><tr><td><strong>Accountability</strong></td><td>Every privileged action attributable to actor, device, IP, time and stated reason</td></tr></tbody></table>
+<h3 id="5-2-1-points-requiring-legal-review-before-citywide-rollout">5.2.1 Points requiring legal review before citywide rollout</h3>
+<p>We flag these rather than assert compliance:</p>
+<ol><li><strong>Retention periods</strong> for journey, ticket, validation and audit records — the    system stores them indefinitely today.</li><li><strong>Passenger location data</strong> — GPS is captured for nearest-stop search and    optionally on complaints. Retention and aggregation rules need a decision.</li><li><strong>Concession and national ID storage</strong> — <code>Passenger.nationalId</code> and    <code>concessionId</code> are modelled. Whether to populate them at all is a policy    decision, and the system works without them.</li><li><strong>Cross-border data residency</strong> — deployment location determines jurisdiction.</li><li><strong>Disclosure to operators</strong> — how much of a passenger's journey history an    operator may lawfully see.</li></ol>
+<h3 id="5-2-2-recommended-privacy-commitments">5.2.2 Recommended privacy commitments</h3>
+<p>We propose the Bureau adopt these as programme policy:</p>
+<ul><li><strong>No commercial data in any scannable credential</strong>, permanently.</li><li><strong>No network-wide movement surveillance</strong> of individual passengers; aggregate   OD data only, with a minimum cell size.</li><li><strong>Officer scan history is the officer's own</strong>, with oversight queries confined to   the audit surface under Bureau control.</li><li><strong>Purge or anonymise journey data</strong> on a published schedule after the   reconciliation window closes.</li></ul>
+<h2 id="5-3-sovereignty-and-lock-in">5.3 Sovereignty and lock-in</h2>
+<p>The Bureau's institutional capability must outlive any vendor.</p>
+<table><thead><tr><th>Asset</th><th>Bureau position</th></tr></thead><tbody><tr><td><strong>Source code</strong></td><td>Fully in the Bureau's environment, no proprietary runtime dependency</td></tr><tr><td><strong>Database</strong></td><td>PostgreSQL — Bureau-owned instance, standard backups, PITR</td></tr><tr><td><strong>Data export</strong></td><td>Full SQL export; no encrypted silo the Bureau cannot read</td></tr><tr><td><strong>Keys</strong></td><td>Bureau-held signing key custody; documented rotation procedure</td></tr><tr><td><strong>Standards</strong></td><td>REST/JSON, OpenAPI 3, Ed25519 — all documented, all standard</td></tr><tr><td><strong>Skills</strong></td><td>Bureau staff trained as administrators (§7.5)</td></tr><tr><td><strong>Exit</strong></td><td>Documented handover and escrow; the platform remains operable if the Team departs</td></tr></tbody></table>
+<p>We deliberately reject proprietary wire formats and closed payment protocols. A public revenue system the Bureau cannot independently operate is not a long-term asset.</p>
+<hr />
+<h1 id="part-vi-implementation-roadmap">Part VI — Implementation Roadmap</h1>
+<h2 id="6-1-phasing-philosophy">6.1 Phasing philosophy</h2>
+<p>The sequence is driven by <strong>evidence, not calendar</strong>. Each phase ends with a decision point where the Bureau can stop, extend or proceed on measured grounds. We specifically avoid a plan that assumes citywide success and works backwards to justify it.</p>
+<pre class="code"><code> Phase 0            Phase 1              Phase 2              Phase 3         Phase 4
+ FOUNDATION         PILOT                EXPAND               INTEGRATE       CITYWIDE
+ (2 months)         (8 months)           (8 months)           (8 months)      (24 months)
+    │                   │                    │                    │                │
+ Signing off on   Live payments,     Second operators,     ITS integration,   All operators,
+ Bureau-approved  cash control,      wider network,        settlement,       full mode
+ reference data   measured baselines  first public data     refunds           coverage
+    │                   │                    │                    │                │
+    ▼                   ▼                    ▼                    ▼                ▼
+ GATE: MOU        GATE: Revenue       GATE: Multi-         GATE: ITS         GATE: Bureau
+ + data           integrity           operator             feeds live       operates
+                  proven              stability            + settlement      independently</code></pre>
+<h2 id="6-2-phase-0-foundation-months-1-2">6.2 Phase 0 — Foundation (months 1–2)</h2>
+<p><strong>Objective:</strong> establish the partnership and load authoritative data. No passenger facing service in this phase.</p>
+<table><thead><tr><th>Activity</th><th>Owner</th></tr></thead><tbody><tr><td>Sign MOU; stand up joint programme office</td><td>Both</td></tr><tr><td><strong>Bureau:</strong> approve stop, route, vehicle and operator registers</td><td>Bureau</td></tr><tr><td>Load Bureau-approved reference data into the platform</td><td>Team</td></tr><tr><td>Confirm fare policy as machine-readable versioned rules</td><td>Bureau</td></tr><tr><td>Procure and configure pilot infrastructure</td><td>Team</td></tr><tr><td>Sign key custody and rotation procedure</td><td>Bureau</td></tr><tr><td>Designate Bureau programme staff and auditors</td><td>Bureau</td></tr><tr><td>Security baseline review; confirm no development routes enabled</td><td>Both</td></tr></tbody></table>
+<p><strong>Gate:</strong> MOU signed; data approved and loaded; key custody documented.</p>
+<h2 id="6-3-phase-1-pilot-months-3-10">6.3 Phase 1 — Pilot (months 3–10)</h2>
+<p><strong>Objective:</strong> prove revenue integrity and cash control on a real corridor with real money.</p>
+<p><strong>Scope:</strong> 6–10 routes on the central corridor; bus mode; cash, agent and one mobile payment method; passenger and staff apps; dashboard; complaints.</p>
+<table><thead><tr><th>Activity</th><th>Notes</th></tr></thead><tbody><tr><td>Integrate <strong>one</strong> live payment provider first</td><td>Telebirr recommended (largest reach). Adding both simultaneously doubles integration risk for no pilot benefit</td></tr><tr><td>Deploy staff handhelds with key enrolment</td><td>Enrolment is the key-lifecycle event</td></tr><tr><td>Train inspectors, conductors, agents, supervisors</td><td>§7.5</td></tr><tr><td>Begin shift and cash reconciliation</td><td>The core revenue control</td></tr><tr><td>Enable fare dual-control workflow</td><td>Bureau finance + bureau admin</td></tr><tr><td>Instrument baseline metrics</td><td>Must be measured <strong>before</strong> enforcement changes anything</td></tr><tr><td>Weekly variance review</td><td>The primary operational rhythm</td></tr><tr><td>Publish assurance dashboard to Bureau</td><td>Read-only, role-scoped</td></tr></tbody></table>
+<h3 id="6-3-1-staged-enforcement">6.3.1 Staged enforcement</h3>
+<p>Enforcement intensity should <strong>ramp</strong>, not switch on. A sudden enforcement regime on a corridor where passengers have not adopted the app would generate grievances without revenue benefit.</p>
+<table><thead><tr><th>Stage</th><th>Period</th><th>Approach</th></tr></thead><tbody><tr><td><strong>Observe</strong></td><td>Months 3–5</td><td>Validate tickets where passengers voluntarily use them. Measure evasion baseline. <strong>No penalties.</strong></td></tr><tr><td><strong>Advise</strong></td><td>Months 6–7</td><td>Officers explain and encourage. Penalties only for repeat, deliberate fraud.</td></tr><tr><td><strong>Enforce</strong></td><td>Months 8–10</td><td>Full enforcement, applied uniformly and audited</td></tr></tbody></table>
+<p>This sequencing should be agreed with the Bureau <strong>before</strong> the pilot starts, not negotiated once passengers are already affected.</p>
+<h3 id="6-3-2-baseline-first">6.3.2 Baseline first</h3>
+<p>We insist on measuring evasion and variance <strong>before</strong> enforcement begins. Without a baseline the Bureau cannot demonstrate improvement, cannot tune thresholds, and will be unable to distinguish a genuine drop in fraud from a change in enforcement intensity. This is the single most common failure in transport digitisation programmes, and it is cheap to avoid.</p>
+<p><strong>Gate:</strong> cash variance measured and trending; fare compliance measured; no unresolved severity-1 incidents; passenger adoption above the threshold agreed at Phase 0.</p>
+<h2 id="6-4-phase-2-expansion-months-11-18">6.4 Phase 2 — Expansion (months 11–18)</h2>
+<p>Extend to additional operators and the wider central network. Introduce public open-data publication, Amharic interface localisation, and the refund workflow. Exit criteria from Phase 1 must be met in full — expansion does not begin to rescue a failing pilot.</p>
+<h2 id="6-5-phase-3-integration-months-19-26">6.5 Phase 3 — Integration (months 19–26)</h2>
+<p>Connect the AACRA ITS feed for live vehicle position and real running times; implement operator settlement runs and dual-controlled refunds. At this point Addis One begins to <em>consume</em> the ITS investment rather than merely complementing it.</p>
+<h2 id="6-6-phase-4-citywide-months-27-50">6.6 Phase 4 — Citywide (months 27–50)</h2>
+<p>Full operator and route coverage; taxi and rail modes; open-data portal; Amharic first-language support; progressive transfer of operational ownership to Bureau staff under a documented exit protocol.</p>
+<hr />
+<h1 id="part-vii-cost-resources-and-capacity">Part VII — Cost, Resources and Capacity</h1>
+<blockquote><p><strong>All figures are indicative planning estimates</strong>, not quotations. They are expressed in ETB and assume the pilot corridor scope in §1.6. Costs depend materially on Bureau-provided infrastructure, device procurement route, payment provider commercial terms, and staffing levels — all open questions at submission. We recommend the Bureau treat these as the basis for a budget request, to be refined jointly in Phase 0.</p></blockquote>
+<h2 id="7-1-phase-0-phase-1-pilot-10-months">7.1 Phase 0 + Phase 1 (pilot, 10 months)</h2>
+<table><thead><tr><th>Line item</th><th>Estimate (ETB)</th><th>Notes</th></tr></thead><tbody><tr><td><strong>Software development</strong></td><td>18.0M – 26.0M</td><td>One live payment provider, offline reconciliation, refunds, Amharic localisation</td></tr><tr><td><strong>Infrastructure (pilot)</strong></td><td>4.0M – 7.0M</td><td>Server, storage, backup, TLS, monitoring. Lower if the Bureau hosts</td></tr><tr><td><strong>Devices</strong></td><td>6.0M – 11.0M</td><td>Inspector/driver handhelds, agent phones. <strong>Largely offset if operators supply their own</strong></td></tr><tr><td><strong>SMS / OTP</strong></td><td>0.9M – 1.8M</td><td>Volume-dependent</td></tr><tr><td><strong>Payment provider fees</strong></td><td>Variable</td><td>Commercial terms with Telebirr / CBE Birr; per-transaction</td></tr><tr><td><strong>Network / data</strong></td><td>1.2M – 2.4M</td><td>Staff app connectivity</td></tr><tr><td><strong>Training &amp; change management</strong></td><td>2.5M – 4.5M</td><td>§7.5</td></tr><tr><td><strong>Security review / penetration test</strong></td><td>1.5M – 3.0M</td><td><strong>Not optional</strong> before real money</td></tr><tr><td><strong>Programme management</strong></td><td>2.5M – 4.5M</td><td>Joint Bureau–Team office</td></tr><tr><td><strong>Contingency (~12%)</strong></td><td>4.3M – 6.8M</td><td></td></tr><tr><td><strong>TOTAL (Phases 0–1)</strong></td><td><strong>41.0M – 67.0M</strong></td><td></td></tr></tbody></table>
+<h3 id="7-1-1-proposed-cost-sharing">7.1.1 Proposed cost sharing</h3>
+<p>The Bureau's cash requirement is a <strong>minority</strong> of total programme cost:</p>
+<table><thead><tr><th>Source</th><th>Share</th><th>Mechanism</th></tr></thead><tbody><tr><td>Team investment</td><td>40–50%</td><td>Software, engineering, programme management</td></tr><tr><td>Bureau</td><td>15–25%</td><td>Programme staff time, office, Bureau-side coordination, any device top-up</td></tr><tr><td>Operators</td><td>20–30%</td><td>In-kind devices, staff time, connectivity for their own fleets</td></tr><tr><td>Development partners</td><td>10–20%</td><td>Concessional finance or grant, if the Bureau wishes to pursue</td></tr></tbody></table>
+<p><strong>Indicative Bureau cash contribution for Phases 0–1: ETB 8–16 million.</strong></p>
+<p>We recommend the Bureau not be asked to fund the software build in the pilot. The Bureau's scarce resource is not budget but <strong>institutional attention</strong> — staff time, policy decisions and enforcement legitimacy. Asking for cash <em>and</em> those would be asking for the same thing twice.</p>
+<h2 id="7-2-phases-2-4-citywide-5-years">7.2 Phases 2–4 (citywide, 5 years)</h2>
+<table><thead><tr><th>Phase</th><th>Estimate (ETB)</th><th>Driver</th></tr></thead><tbody><tr><td>Phase 2 — Expansion</td><td>70M – 110M</td><td>Second operators, wider network, localisation, refunds, open data</td></tr><tr><td>Phase 3 — ITS integration &amp; settlement</td><td>85M – 130M</td><td>ITS feed work, settlement engine, real-time</td></tr><tr><td>Phase 4 — Citywide</td><td>225M – 380M</td><td>Full device fleet, all modes, long-term operations</td></tr><tr><td><strong>TOTAL (Phases 2–4)</strong></td><td><strong>380M – 620M</strong></td><td></td></tr></tbody></table>
+<h3 id="7-2-1-recurring-operational-cost">7.2.1 Recurring operational cost</h3>
+<p>Roughly <strong>6–9% of capital cost per year</strong> for hosting, support, security patching and key management. This must be budgeted from day one; systems that cannot be afforded to maintain become unmaintained, and an unmaintained revenue system is a liability.</p>
+<h2 id="7-3-return-model-and-its-honest-limits">7.3 Return model — and its honest limits</h2>
+<h3 id="7-3-1-the-mechanism">7.3.1 The mechanism</h3>
+<table><thead><tr><th>Source</th><th>Mechanism</th></tr></thead><tbody><tr><td><strong>Cash leakage recovery</strong></td><td>Shift float + declared cash + variance makes leakage measurable; measurable leakage is recoverable</td></tr><tr><td><strong>Fare dispute resolution</strong></td><td>Disputes settled from a stored fare calculation rather than argument — lower administrative cost, fewer escalations</td></tr><tr><td><strong>Enforcement efficiency</strong></td><td>Targeting inspection at observed evasion hotspots rather than uniformly</td></tr><tr><td><strong>Planning data</strong></td><td>Origin–destination and load data for network planning — currently unavailable to the Bureau</td></tr><tr><td><strong>Service quality</strong></td><td>Structured complaint data directs operator accountability</td></tr></tbody></table>
+<h3 id="7-3-2-why-we-give-no-percentage">7.3.2 Why we give no percentage</h3>
+<p>We have <strong>not</strong> run this system with real money, and we do not know the Bureau's current leakage rate. Any specific return percentage would be fabricated. Note that the Bureau also does not currently know its own leakage — which is precisely the problem this system solves.</p>
+<p>The pilot's primary deliverable is a <strong>defensible revenue baseline for the Bureau</strong>, which no amount of desk analysis can substitute for.</p>
+<h2 id="7-4-team-and-capacity">7.4 Team and capacity</h2>
+<table><thead><tr><th>Role</th><th>Indicative FTE</th><th>Phases</th></tr></thead><tbody><tr><td>Technical lead / architect</td><td>1</td><td>0–4</td></tr><tr><td>Backend engineers</td><td>2–3</td><td>0–3</td></tr><tr><td>Mobile engineers (Flutter)</td><td>1–2</td><td>0–3</td></tr><tr><td>DevOps / platform</td><td>1</td><td>0–4</td></tr><tr><td>Payment integration specialist</td><td>1</td><td>1</td></tr><tr><td>QA engineer</td><td>1</td><td>0–3</td></tr><tr><td>Security engineer</td><td>0.5</td><td>0–4</td></tr><tr><td>Data analyst</td><td>1</td><td>1–2</td></tr><tr><td>Training lead</td><td>1</td><td>0–2</td></tr><tr><td>Programme manager</td><td>1</td><td>0–4</td></tr><tr><td><strong>Peak total</strong></td><td><strong>~11–13</strong></td><td></td></tr></tbody></table>
+<h2 id="7-5-training-and-change-management">7.5 Training and change management</h2>
+<p>Training is a <strong>deliverable with an acceptance criterion</strong>, not a line item.</p>
+<table><thead><tr><th>Audience</th><th>Content</th><th>Duration</th></tr></thead><tbody><tr><td>Inspectors / ticket officers</td><td>Scanning, outcome vocabulary, what each refusal means, device care</td><td>1 day</td></tr><tr><td>Conductors / agents</td><td>Shift open/close, cash declaration, variance, assisted sale</td><td>1 day</td></tr><tr><td>Supervisors</td><td>Variance review, dispute workflow, escalation</td><td>0.5 day</td></tr><tr><td>Bureau finance</td><td>Fare authoring and approval, dual control, settlement</td><td>1 day</td></tr><tr><td>Bureau administrators</td><td>Network reference data, staff roles, dashboard</td><td>2 days</td></tr><tr><td>Bureau IT (2–3 staff)</td><td>Deployment, backup/restore, key custody, log monitoring, <strong>handover</strong></td><td>5 days</td></tr></tbody></table>
+<p>The last row is the programme's insurance policy: <strong>at least two Bureau IT staff must be able to operate the platform independently</strong> before Phase 4 begins.</p>
+<h3 id="7-5-1-change-management-realities">7.5.1 Change-management realities</h3>
+<p>The honest risk in this programme is not technical. It is that <strong>frontline staff resent the system</strong> if it is perceived as surveillance or as a pretext for sanctioning. Two mitigations are built into the design:</p>
+<ul><li>Scan history is the officer's <strong>own</strong>, not a city-wide who-inspected-whom feed   (§4.5.7) — a deliberate privacy protection for staff.</li><li>Staged enforcement (§6.3.1) means officers are not asked to enforce an unfamiliar   rule against the public before the public has adopted the system.</li></ul>
+<p>We recommend the Bureau communicate these protections explicitly at launch. Staff trust is worth more to this programme than any feature.</p>
+<hr />
+<h1 id="part-viii-success-metrics">Part VIII — Success Metrics</h1>
+<p>Metrics are grouped by the objective they serve. Each has a <strong>baseline measured in Phase 1 before enforcement</strong> and a target agreed at the Phase 0 gate. We do not propose targets here, because setting them without a baseline is how programmes end up claiming success they did not achieve.</p>
+<h2 id="8-1-revenue-integrity-o1-o2">8.1 Revenue integrity (O1, O2)</h2>
+<table><thead><tr><th>Metric</th><th>Definition</th><th>Source</th></tr></thead><tbody><tr><td>Shift declaration rate</td><td>Shifts closed with a declared cash figure ÷ total shifts</td><td>Shift records</td></tr><tr><td>Variance distribution</td><td>Mean, median and standard deviation of variance by operator</td><td>Shift records</td></tr><tr><td>Variance trend</td><td>Monthly movement in variance rate</td><td>Shift records</td></tr><tr><td>Fare calculation reproducibility</td><td>Share of tickets whose fare can be reproduced from stored inputs</td><td>Fare calculations</td></tr><tr><td>Fallback fare rate</td><td>Share of journeys priced by fallback rather than a matched rule</td><td>Fare engine flag</td></tr><tr><td>Unreconciled revenue</td><td>Revenue in terminal payment state not reflected in a closed shift</td><td>Payment ↔ shift</td></tr></tbody></table>
+<p><strong>The fallback fare rate deserves attention</strong> — it is the system's own internal alarm that fare policy has a coverage gap.</p>
+<h2 id="8-2-compliance-and-enforcement-o3">8.2 Compliance and enforcement (O3)</h2>
+<table><thead><tr><th>Metric</th><th>Definition</th><th>Source</th></tr></thead><tbody><tr><td>Validation rate</td><td>Validations ÷ tickets issued, per route/day</td><td>Validation records</td></tr><tr><td>Outcome distribution</td><td>Share of each of the 11 outcomes</td><td>Validation records</td></tr><tr><td>Repeat forgery attempts</td><td>Distinct devices/staff linked to <code>INVALID_SIGNATURE</code></td><td>Validation + audit</td></tr><tr><td>Double-scan rate</td><td>Second scans of already-validated tickets</td><td>Validation records</td></tr><tr><td>Overcharge complaint rate</td><td><code>OVERCHARGE</code> complaints per 10,000 tickets</td><td>Complaints</td></tr></tbody></table>
+<h2 id="8-3-service-quality-o4">8.3 Service quality (O4)</h2>
+<table><thead><tr><th>Metric</th><th>Definition</th></tr></thead><tbody><tr><td>Complaint volume and trend per route/operator</td><td></td></tr><tr><td>Category mix (share of each of 8 categories)</td><td></td></tr><tr><td>Geolocation coverage</td><td></td></tr><tr><td>Resolution rate and median time to resolution</td><td></td></tr><tr><td>Repeat-complaint rate for the same operator</td><td></td></tr></tbody></table>
+<h2 id="8-4-data-quality-o5">8.4 Data quality (O5)</h2>
+<table><thead><tr><th>Metric</th><th>Definition</th></tr></thead><tbody><tr><td>Stops/routes/vehicles with complete attributes</td><td></td></tr><tr><td>Fare rule coverage: zone-pairs with no active rule</td><td></td></tr><tr><td>Orphan reference data (routes with no valid stops)</td><td></td></tr><tr><td>ITS feed freshness, where integrated</td><td></td></tr></tbody></table>
+<h2 id="8-5-adoption-and-equity">8.5 Adoption and equity</h2>
+<table><thead><tr><th>Metric</th><th>Definition</th></tr></thead><tbody><tr><td>Active unique users, and transactions per active user</td><td></td></tr><tr><td>Share of transactions by method (cash vs mobile)</td><td></td></tr><tr><td><strong>Concession uptake</strong> — are discounted groups actually using the system?</td><td></td></tr><tr><td>Coverage of outer sub-cities vs the central corridor</td><td></td></tr></tbody></table>
+<p><strong>We flag the equity metric deliberately.</strong> A ticketing system that only serves smartphone-owning commuters in the centre would entrench exclusion while reporting success. Concession uptake and sub-city coverage should be reported to the Bureau as first-class indicators, not afterthoughts.</p>
+<h2 id="8-6-system-health">8.6 System health</h2>
+<table><thead><tr><th>Metric</th><th>Threshold expectation</th></tr></thead><tbody><tr><td>API availability</td><td>≥99.5% excluding planned maintenance</td></tr><tr><td>Payment success rate</td><td>Baseline in pilot; investigated if it drops</td></tr><tr><td>P95 API latency</td><td>Sub-second for reads; sub-3s for purchase</td></tr><tr><td>Database growth and index usage</td><td>Reviewed monthly</td></tr><tr><td>Security alerts</td><td>Zero unresolved severity-1</td></tr><tr><td>Backup/restore drill</td><td>Passed at least once per quarter</td></tr></tbody></table>
+<hr />
+<h1 id="part-ix-risk-register">Part IX — Risk Register</h1>
+<p>Risks are scored <strong>likelihood × impact</strong> (H/M/L). We present the top risks honestly, including those to <strong>this proposal</strong>.</p>
+<table><thead><tr><th>#</th><th>Risk</th><th>L</th><th>I</th><th>Mitigation</th><th>Owner</th></tr></thead><tbody><tr><td>R1</td><td><strong>Low passenger adoption</strong> — cash culture persists, smartphone/data cost barrier</td><td>H</td><td>H</td><td>Keep cash and agent paths first-class; agent-assisted sales; staged enforcement; measure adoption weekly from month 1</td><td>Both</td></tr><tr><td>R2</td><td><strong>Frontline staff resistance</strong> — perceived as surveillance or sanction tool</td><td>H</td><td>H</td><td>Officer-private scan history; staged enforcement; involve unions early; communicate protections explicitly</td><td>Bureau</td></tr><tr><td>R3</td><td><strong>Payment provider integration delay</strong></td><td>M</td><td>H</td><td>Integrate one provider first; commercial terms in Phase 0; cash path independent of providers</td><td>Team</td></tr><tr><td>R4</td><td><strong>Enforcement backlash without baseline</strong></td><td>M</td><td>H</td><td>Measure before enforcing (§6.3.2); uniform audited application</td><td>Both</td></tr><tr><td>R5</td><td><strong>Reference data quality</strong> — Bureau data incomplete or contested</td><td>M</td><td>H</td><td>Bureau signs off data as authoritative; data-quality dashboard from day one</td><td>Bureau</td></tr><tr><td>R6</td><td><strong>Connectivity gaps</strong> in outer sub-cities</td><td>H</td><td>M</td><td>Offline validation; local queue; store-and-forward</td><td>Team</td></tr><tr><td>R7</td><td><strong>Key compromise</strong> — signing key stolen</td><td>L</td><td><strong>H</strong></td><td>Keys in Bureau custody (HSM where available); documented rotation; <code>keyId</code> enables non-breaking rotation; revocation</td><td>Bureau</td></tr><tr><td>R8</td><td><strong>Insider abuse</strong> — staff collusion or credential misuse</td><td>M</td><td>H</td><td>Hash-chained audit; dual control; operator boundary; periodic audit reviews</td><td>Bureau</td></tr><tr><td>R9</td><td><strong>Vendor dependency</strong> — Team unavailable</td><td>M</td><td>M</td><td>Source in Bureau environment; handover and escrow; Bureau IT trained from Phase 1</td><td>Both</td></tr><tr><td>R10</td><td><strong>Privacy incident</strong> — passenger data exposure</td><td>L</td><td>H</td><td>Data minimisation by design; role scoping; retention policy; penetration test</td><td>Both</td></tr><tr><td>R11</td><td><strong>Fare policy disputes</strong> during changeover</td><td>M</td><td>M</td><td>Versioned fares; dual control; published effective dates; grandfathering rules</td><td>Bureau</td></tr><tr><td>R12</td><td><strong>Over-reliance on mock provider assumption</strong></td><td>L</td><td>H</td><td>Explicit acceptance testing against live sandbox before go-live</td><td>Team</td></tr><tr><td>R13</td><td><strong>Budget not sustained</strong> for operations</td><td>M</td><td>H</td><td>Recurring cost budgeted from Phase 0, not deferred</td><td>Bureau</td></tr><tr><td>R14</td><td><strong>Equity failure</strong> — system serves only the connected centre</td><td>M</td><td>H</td><td>Concession uptake and sub-city coverage as first-class metrics; agent and cash paths retained</td><td>Both</td></tr></tbody></table>
+<h2 id="9-1-risks-to-this-proposal-specifically">9.1 Risks to this proposal specifically</h2>
+<p>We state these plainly, because a proposal that lists only risks to others is not being candid:</p>
+<ol><li><strong>We have not moved live money.</strong> The orchestration guarantees are tested, but    real-world provider behaviour will surprise us. R3 and R12 are the mitigations.</li><li><strong>The journey planner is deliberately simple.</strong> It will not produce the    theoretically optimal itinerary in every case. This is a deliberate trade for    explainability, but the Bureau should confirm it accepts that trade.</li><li><strong>Amharic UI is not built.</strong> Interface strings are English. For Phase 1 this is    acceptable for staff and supervisors, and <strong>less acceptable for direct citizen    use</strong>. Localisation is Phase 2 work and should be funded before broad public    rollout.</li><li><strong>Cost estimates have wide ranges.</strong> They narrow only after Phase 0 scoping.</li><li><strong>Adoption is the dominant risk</strong> and it is behavioural, not technical. No    engineering fixes a passenger who does not want to change how they board a bus.    This is why the pilot exists.</li></ol>
+<hr />
+<h1 id="part-x-the-request">Part X — The Request</h1>
+<h2 id="10-1-what-we-ask-the-bureau-to-approve">10.1 What we ask the Bureau to approve</h2>
+<table><thead><tr><th>#</th><th>Request</th><th>Decision needed</th></tr></thead><tbody><tr><td>1</td><td><strong>Authorise a pilot</strong> on 6–10 central-corridor routes over 10 months</td><td>Bureau leadership</td></tr><tr><td>2</td><td><strong>Establish a joint programme office</strong> with named Bureau and Team staff</td><td>Bureau leadership</td></tr><tr><td>3</td><td><strong>Designate Bureau-approvable reference data</strong> — stops, routes, vehicles, operators, fare policy</td><td>Bureau + operators</td></tr><tr><td>4</td><td><strong>Grant Bureau custody of signing keys</strong> and approve the rotation procedure</td><td>Bureau security</td></tr><tr><td>5</td><td><strong>Nominate Bureau auditors</strong> with read access to the audit chain and revenue reporting</td><td>Bureau</td></tr><tr><td>6</td><td><strong>Confirm enforcement staging</strong> before pilot launch</td><td>Bureau</td></tr><tr><td>7</td><td><strong>Authorise payment-provider engagement</strong> (Telebirr first)</td><td>Bureau + Team</td></tr></tbody></table>
+<h2 id="10-2-what-we-commit-to">10.2 What we commit to</h2>
+<ol><li><strong>Full transparency on capability</strong> — §4.12 states plainly what is built, partial    and not started.</li><li><strong>Bureau verification, not Bureau trust</strong> — §4.12.5 lists the demonstrations we    will perform on request, including attempts to break the system.</li><li><strong>Bureau-owned data and keys</strong> — §5.3.</li><li><strong>Bureau IT capability before citywide</strong> — at least two staff independently    operating the platform (§7.5).</li><li><strong>Measured baselines before conclusions</strong> — no revenue claims without data.</li><li><strong>No lock-in</strong> — standard formats, documented exit, escrow.</li></ol>
+<h2 id="10-3-immediate-next-steps">10.3 Immediate next steps</h2>
+<p>We propose a <strong>two-hour technical and programmatic briefing</strong> at the Bureau's convenience, covering:</p>
+<ul><li>Live demonstration of the fare dispute workflow — the most persuasive artefact in   this proposal</li><li>Demonstration of the four invariant guarantees</li><li>Architecture and security review</li><li>Cost and phasing discussion</li><li>Agreement on pilot corridor and enforcement staging</li></ul>
+<p>We will bring the running system. We would rather be judged on a demonstration than on this document.</p>
+<h2 id="10-4-contact">10.4 Contact</h2>
+<table><thead><tr><th></th><th></th></tr></thead><tbody><tr><td><strong>Programme</strong></td><td>Addis One — Digital Public Transport Modernisation</td></tr><tr><td><strong>Documentation</strong></td><td><code>docs/architecture.md</code>, <code>docs/adr/0001-modular-monolith.md</code>, <code>docs/adr/0002-ed25519-qr-signing.md</code></td></tr><tr><td><strong>Evidence available on request</strong></td><td>Source repository, 141-test suite (7 suites, all passing), live demonstration environment, architecture review</td></tr></tbody></table>
+<hr />
+<h2 id="appendix-a-glossary">Appendix A — Glossary</h2>
+<table><thead><tr><th>Term</th><th>Meaning</th></tr></thead><tbody><tr><td><strong>Fils</strong></td><td>Integer minor unit of the birr. 1 ETB = 100 fils. All money is stored in fils</td></tr><tr><td><strong>Idempotency key</strong></td><td>Client-generated token ensuring a repeated request performs one charge, not many</td></tr><tr><td><strong>Credential</strong></td><td>The signed data in a ticket QR: identifiers, timestamps, nonce, signature — no commercial data</td></tr><tr><td><strong>Validation</strong></td><td>An inspector's scan determining whether a passenger may board</td></tr><tr><td><strong>Variance</strong></td><td>Difference between expected cash (float + sales) and declared cash at shift close</td></tr><tr><td><strong>Freshness</strong></td><td>How current a reading is: <code>REAL_TIME</code>, <code>ESTIMATED</code>, <code>SCHEDULED</code>, <code>STALE</code>, <code>UNKNOWN</code></td></tr><tr><td><strong>Operator boundary</strong></td><td>Staff may act only on their own operator's resources unless holding a bureau or finance role</td></tr><tr><td><strong>Dual control</strong></td><td>Requiring two separate people to complete one sensitive action</td></tr><tr><td><strong>Fallback fare</strong></td><td>A flagged default price used when no fare rule matches; an alarm, not a normal path</td></tr></tbody></table>
+<h2 id="appendix-b-architecture-decision-records">Appendix B — Architecture Decision Records</h2>
+<table><thead><tr><th>ADR</th><th>Decision</th><th>Status</th></tr></thead><tbody><tr><td><strong>0001</strong></td><td>Modular monolith, not microservices — because ticket issuance and payment confirmation must commit atomically, and network services would add partial-failure modes to a system whose correctness depends on that guarantee</td><td>Accepted</td></tr><tr><td><strong>0002</strong></td><td>Ed25519 for QR credential signatures — driven by the offline-verification constraint: 32-byte public keys distribute to thousands of handhelds, 64-byte signatures keep QR codes scannable, and deterministic signatures remove a class of replay questions</td><td>Accepted</td></tr></tbody></table>
+<p><strong>ADR 0001's revisit condition:</strong> extraction into separate services should be considered when a module needs independent scaling (fleet GPS is the first candidate), a different release cadence, a team boundary requiring hard isolation, or a genuinely distributed deployment target.</p>
+<hr />
+<h2 id="appendix-c-technical-evidence-available-for-bureau-review">Appendix C — Technical evidence available for Bureau review</h2>
+<table><thead><tr><th>Item</th><th>Location / detail</th></tr></thead><tbody><tr><td>Architecture document</td><td><code>docs/architecture.md</code></td></tr><tr><td>Modular monolith rationale</td><td><code>docs/adr/0001-modular-monolith.md</code></td></tr><tr><td>Ed25519 rationale</td><td><code>docs/adr/0002-ed25519-qr-signing.md</code></td></tr><tr><td>Canonical data model</td><td><code>backend/prisma/schema.prisma</code> (~40 models)</td></tr><tr><td>Fare engine + tests</td><td><code>backend/src/modules/fares/fare-engine.ts</code>, <code>.spec.ts</code> (21 tests)</td></tr><tr><td>Ticket state machine + tests</td><td><code>backend/src/modules/ticketing/ticket-state-machine.ts</code>, <code>.spec.ts</code> (24 tests)</td></tr><tr><td>Payment orchestrator + tests</td><td><code>backend/src/modules/payments/payment-orchestrator.ts</code>, <code>.spec.ts</code> (23 tests)</td></tr><tr><td>Credential signer + tests</td><td><code>backend/src/modules/ticketing/credential-signer.ts</code>, <code>.spec.ts</code> (18 tests)</td></tr><tr><td>Authorisation policy + tests</td><td><code>backend/src/modules/auth/policy.ts</code>, <code>staff-session.spec.ts</code> (25 tests)</td></tr><tr><td>Dashboard query + tests</td><td><code>backend/src/modules/dashboard/dashboard-query.ts</code>, <code>.spec.ts</code> (20 tests)</td></tr><tr><td>Config validation + tests</td><td><code>backend/src/config/validate-env.ts</code>, <code>.spec.ts</code> (11 tests)</td></tr><tr><td>Local infrastructure</td><td><code>infra/docker-compose.yml</code> (PostgreSQL, Redis, TimescaleDB)</td></tr><tr><td>Real reference data</td><td><code>backend/prisma/seed.ts</code> — 15 stops, 6 routes, 2 operators, versioned fare rules</td></tr></tbody></table>
+<p><strong>Verified at submission: 7 test suites, 141 tests, all passing.</strong></p>
+<table><thead><tr><th>Suite</th><th>Tests</th><th>Covers</th></tr></thead><tbody><tr><td><code>ticket-state-machine.spec.ts</code></td><td>24</td><td>I1 — single edge into <code>TICKET_ISSUED</code>, terminal immutability</td></tr><tr><td><code>staff-session.spec.ts</code></td><td>25</td><td>Role lists, operator boundary, city-wide scoping</td></tr><tr><td><code>payment-orchestrator.spec.ts</code></td><td>23</td><td>I2 idempotency, terminal states, provider contract</td></tr><tr><td><code>fare-engine.spec.ts</code></td><td>21</td><td>Specificity ranking, versioned rules, floors, concessions, transfers</td></tr><tr><td><code>dashboard-query.spec.ts</code></td><td>20</td><td>Date range and pagination resolution</td></tr><tr><td><code>credential-signer.spec.ts</code></td><td>18</td><td>Ed25519 sign/verify, canonical serialisation, key selection</td></tr><tr><td><code>validate-env.spec.ts</code></td><td>11</td><td>Configuration validation and password redaction</td></tr></tbody></table>
+<hr />
+<p><em>End of proposal. Prepared October 2026. All technical claims verifiable against the inspected system; all cost figures are indicative planning estimates requiring Phase 0 refinement.</em></p>
+</body>
+</html>

@@ -1,0 +1,71 @@
+# Addis One — local development infrastructure.
+#
+# PostgreSQL is the transactional system of record. Redis backs rate limiting,
+# idempotency short-circuits, and the OTP challenge cache.
+#
+#   docker compose up -d
+#
+# For production: managed Postgres with PITR and point-in-time recovery.
+# These credentials are development-only and are intentionally weak.
+
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: at-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: addis
+      POSTGRES_PASSWORD: addis_dev_password
+      POSTGRES_DB: addis_one
+      # Deterministic collation keeps index behaviour identical across hosts.
+      POSTGRES_INITDB_ARGS: "--locale=C.UTF-8 --encoding=UTF8"
+    ports:
+      - "5433:5432"
+    volumes:
+      - addis-pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U addis -d addis_one"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    command:
+      - "postgres"
+      - "-c"
+      - "max_connections=200"
+      - "-c"
+      - "shared_buffers=256MB"
+
+  redis:
+    image: redis:7-alpine
+    container_name: at-redis
+    restart: unless-stopped
+    ports:
+      - "6380:6379"
+    volumes:
+      - addis-redisdata:/data
+    command: ["redis-server", "--appendonly", "yes"]
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # TimescaleDB-style time-series storage for fleet GPS. Kept out of the
+  # transactional DB on purpose — see architecture.md §4.
+  timescaledb:
+    image: timescale/timescaledb:latest-pg16
+    container_name: at-timescale
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: addis_ts
+      POSTGRES_PASSWORD: addis_dev_password
+      POSTGRES_DB: addis_ts
+    ports:
+      - "5434:5432"
+    volumes:
+      - addis-tsdata:/var/lib/postgresql/data
+
+volumes:
+  addis-pgdata:
+  addis-redisdata:
+  addis-tsdata:

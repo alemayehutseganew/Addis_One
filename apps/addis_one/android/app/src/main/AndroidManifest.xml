@@ -1,0 +1,115 @@
+<manifest xmlns:android="http://schemas.android.com/apk/res/android">
+    <!-- REQUIRED in release builds. Flutter's template only declares this in
+         the debug/ and profile/ variants (for hot reload), so a release APK
+         built from the stock template has no network permission at all and
+         every HTTP call fails immediately. -->
+    <uses-permission android:name="android.permission.INTERNET"/>
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE"/>
+
+    <!-- Journey planning asks for the passenger's position. Coarse is enough
+         to snap to a nearby stop, so coarse-only avoids the runtime prompt
+         that ACCESS_FINE_LOCATION triggers. -->
+    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION"/>
+
+    <!-- Staff ticket validation. Scanning is the staff half's entire purpose, so
+         the camera is required rather than optional: a handheld issued to an
+         inspector without one is a provisioning mistake, and letting such a
+         device install would just fail at the door with no camera to scan with. -->
+    <uses-permission android:name="android.permission.CAMERA"/>
+
+    <!-- Not declared optional: Play Store filtering would otherwise hide the
+         app from devices that could in fact use it. -->
+    <uses-feature android:name="android.hardware.camera" android:required="true"/>
+    <uses-feature android:name="android.hardware.camera.autofocus" android:required="false"/>
+    <application
+        android:label="Addis One"
+        android:name="${applicationName}"
+        android:icon="@mipmap/ic_launcher"
+        android:networkSecurityConfig="@xml/network_security_config">
+        <activity
+            android:name=".MainActivity"
+            android:exported="true"
+            android:launchMode="singleTop"
+            android:taskAffinity=""
+            android:theme="@style/LaunchTheme"
+            android:configChanges="orientation|keyboardHidden|keyboard|screenSize|smallestScreenSize|locale|layoutDirection|fontScale|screenLayout|density|uiMode"
+            android:hardwareAccelerated="true"
+            android:windowSoftInputMode="adjustResize">
+            <!-- Specifies an Android theme to apply to this Activity as soon as
+                 the Android process has started. This theme is visible to the user
+                 while the Flutter UI initializes. After that, this theme continues
+                 to determine the Window background behind the Flutter UI. -->
+            <meta-data
+              android:name="io.flutter.embedding.android.NormalTheme"
+              android:resource="@style/NormalTheme"
+              />
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN"/>
+                <category android:name="android.intent.category.LAUNCHER"/>
+            </intent-filter>
+        </activity>
+        <!-- Don't delete the meta-data below.
+             This is used by the Flutter tool to generate GeneratedPluginRegistrant.java -->
+        <meta-data
+            android:name="flutterEmbedding"
+            android:value="2" />
+        <!-- FileProvider for ticket QR image sharing. The authority is
+             applicationId-derived, not hardcoded, so release and debug
+             variants cannot grant each other's URIs — a stale debug cache
+             file must never be reachable from the installed build. -->
+        <provider
+            android:name="androidx.core.content.FileProvider"
+            android:authorities="${applicationId}.fileprovider"
+            android:exported="false"
+            android:grantUriPermissions="true">
+            <meta-data
+                android:name="android.support.FILE_PROVIDER_PATHS"
+                android:resource="@xml/file_paths" />
+        </provider>
+    </application>
+    <!-- Required to query activities that can process text, see:
+         https://developer.android.com/training/package-visibility and
+         https://developer.android.com/reference/android/content/Intent#ACTION_PROCESS_TEXT.
+
+         In particular, this is used by the Flutter engine in io.flutter.plugin.text.ProcessTextPlugin. -->
+    <queries>
+        <intent>
+            <action android:name="android.intent.action.PROCESS_TEXT"/>
+            <data android:mimeType="text/plain"/>
+        </intent>
+
+        <!-- Android 11+ package visibility. Without this the system SMS
+             composer is invisible to startActivity(), so "Send QR by SMS"
+             fails with ActivityNotFoundException on every modern device even
+             though a messaging app is installed. The reply lands in the
+             passenger's own Messages thread, so <queries> is the correct
+             mechanism — and it grants no permission to read messages back. -->
+        <intent>
+            <action android:name="android.intent.action.VIEW"/>
+            <data android:scheme="smsto"/>
+        </intent>
+
+        <!-- "Share ticket" (WhatsApp, Telegram, etc). Same Android 11+
+             package-visibility requirement as smsto above: without it the
+             share sheet resolves to nothing. This declares that the app CAN
+             SEND text/plain — it grants no permission to read anything, and
+             the passenger still chooses the app and confirms in it. -->
+        <intent>
+            <action android:name="android.intent.action.SEND"/>
+            <data android:mimeType="text/plain"/>
+        </intent>
+
+        <!-- QR-image shares ride the same SEND action as image/png. Without a
+             matching declaration the sheet resolves to nothing on Android 11+
+             for the image type even though text shares work. -->
+        <intent>
+            <action android:name="android.intent.action.SEND"/>
+            <data android:mimeType="image/png"/>
+        </intent>
+
+        <!-- Lets getPackageInfo see WhatsApp so the WhatsApp button can be
+             hidden when it is not installed. Absent this, the check silently
+             returns "not installed" on every device. -->
+        <package android:name="com.whatsapp"/>
+    </queries>
+</manifest>

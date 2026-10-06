@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  FileProvider paths for ticket QR sharing.
+
+  Scoped to share-images/ only: the provider exposes exactly the directory
+  shareQr writes into. Nothing else in the cache — notably neither the
+  passenger's stored tickets nor either role's session material — is
+  addressable through this authority.
+-->
+<paths>
+    <cache-path name="share-qr" path="share-qr/" />
+</paths>

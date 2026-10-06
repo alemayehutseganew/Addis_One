@@ -1,0 +1,73 @@
+name: addis_one
+description: "Addis One — one app for passengers and staff: ticketing, journey planning, and ticket validation."
+publish_to: 'none'
+
+version: 1.0.0+1
+
+environment:
+  sdk: ^3.13.4
+
+dependencies:
+  flutter:
+    sdk: flutter
+  flutter_localizations:
+    sdk: flutter
+
+  # State management — Riverpod is the single source of truth for app state, and
+  # both roles read it the same way.
+  flutter_riverpod: ^2.6.1
+  riverpod_annotation: ^2.6.1
+
+  # Declarative routing with deep links. The role fork is expressed here, so the
+  # path to any screen states which half of the app it belongs to.
+  go_router: ^14.6.2
+
+  # HTTP client for the Addis One API. One client, two role-scoped policies.
+  dio: ^5.7.0
+
+  # Immutable models with generated ==/hashCode and union types.
+  freezed_annotation: ^2.4.4
+  json_annotation: ^4.9.0
+
+  # Local persistence: passenger tickets and journey history, and the staff
+  # offline scan queue.
+  shared_preferences: ^2.3.5
+  # Both sessions are bearer credentials for privileged endpoints, so they
+  # belong in the keystore rather than in plaintext app storage.
+  flutter_secure_storage: ^9.2.4
+
+  # QR display for issued passenger tickets.
+  qr_flutter: ^4.1.0
+
+  # Location for "near me" journey planning.
+  geolocator: ^13.0.2
+
+  # Connectivity, so the UI can warn about degraded mode.
+  connectivity_plus: ^6.1.0
+
+  # Camera capture for staff ticket QR scanning. The staff half's primary input,
+  # and the reason the two apps were merged into one binary rather than shipped
+  # as two.
+  mobile_scanner: ^5.2.3
+
+  # Formatting money, dates and validation timestamps.
+  intl: ^0.20.2
+
+  # Equatable for value comparison in tests.
+  equatable: ^2.0.7
+
+  cupertino_icons: ^1.0.8
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^6.0.0
+
+  # Code generation for Freezed/JSON models.
+  build_runner: ^2.4.13
+  freezed: ^2.5.8
+  json_serializable: ^6.9.0
+  riverpod_generator: ^2.6.3
+
+flutter:
+  uses-material-design: true

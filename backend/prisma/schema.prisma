@@ -1,0 +1,1203 @@
+// Addis One — canonical data model.
+//
+// Design rules enforced here (see docs/architecture.md §5):
+//   I1 ticket requires CONFIRMED payment   -> Ticket.paymentId + service guard
+//   I2 idempotency is a DB constraint      -> Payment.idempotencyKey is @unique
+//   I3 fares are versioned                 -> Ticket.fareRuleVersionId NOT NULL
+//   I4 QR carries no commercial data       -> QrCredential holds identifiers only
+//   I5 privileged actions audited          -> AuditEvent is append-only
+//
+// Money is integer minor units (fils; 1 ETB = 100 fils). NEVER float.
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ── Enums ──────────────────────────────────────────────────────────────────
+
+enum UserStatus {
+  ACTIVE
+  SUSPENDED
+  PENDING_VERIFICATION
+  CLOSED
+}
+
+enum StaffRole {
+  DRIVER
+  CONDUCTOR
+  INSPECTOR
+  TICKET_OFFICER
+  AGENT
+  SUPERVISOR
+  OPERATOR_ADMIN
+  TRANSPORT_BUREAU_ADMIN
+  FINANCE
+  AUDITOR
+  SUPER_ADMIN
+}
+
+enum TransportMode {
+  BUS
+  TAXI
+  TRAIN
+}
+
+enum OperatorStatus {
+  PENDING
+  ACTIVE
+  SUSPENDED
+  TERMINATED
+}
+
+enum VehicleStatus {
+  ACTIVE
+  MAINTENANCE
+  OUT_OF_SERVICE
+  RETIRED
+}
+
+enum TripStatus {
+  SCHEDULED
+  BOARDING
+  IN_PROGRESS
+  COMPLETED
+  CANCELLED
+  DELAYED
+}
+
+enum FareRuleStatus {
+  DRAFT
+  PENDING_APPROVAL
+  ACTIVE
+  SUPERSEDED
+  RETIRED
+}
+
+enum PaymentMethod {
+  TELEBIRR
+  CBE_BIRR
+  BANK
+  CASH
+  AGENT_CREDIT
+  USSD
+  WALLET
+}
+
+enum PaymentStatus {
+  CREATED
+  PENDING
+  REQUIRES_ACTION
+  AUTHORIZED
+  CONFIRMED
+  FAILED
+  TIMEOUT
+  REVERSED
+  REFUNDED
+  PARTIALLY_REFUNDED
+}
+
+enum TicketStatus {
+  CREATED
+  FARE_QUOTED
+  PAYMENT_PENDING
+  PAYMENT_AUTHORIZED
+  PAYMENT_CONFIRMED
+  TICKET_ISSUED
+  VALID
+  VALIDATED
+  COMPLETED
+  PAYMENT_FAILED
+  PAYMENT_TIMEOUT
+  PAYMENT_REVERSED
+  REFUNDED
+  EXPIRED
+  CANCELLED
+  VOIDED
+}
+
+enum ValidationOutcome {
+  VALID
+  INVALID
+  INVALID_SIGNATURE
+  EXPIRED
+  ALREADY_USED
+  WRONG_TRIP
+  WRONG_MODE
+  REVOKED
+  NOT_ISSUED
+  UNKNOWN_CREDENTIAL
+  DEVICE_UNAUTHORIZED
+  PENDING_SYNC
+}
+
+enum ShiftStatus {
+  OPEN
+  CLOSED
+  RECONCILING
+  RECONCILED
+  DISPUTED
+}
+
+enum ComplaintStatus {
+  OPEN
+  ASSIGNED
+  INVESTIGATING
+  WAITING_ON_CUSTOMER
+  RESOLVED
+  CLOSED
+  REJECTED
+}
+
+enum ComplaintCategory {
+  SERVICE_QUALITY
+  OVERCHARGE
+  REFUND_REQUEST
+  SAFETY
+  DISCRIMINATION
+  LOST_PROPERTY
+  CLEANLINESS
+  OTHER
+}
+
+enum DataFreshness {
+  REAL_TIME
+  ESTIMATED
+  SCHEDULED
+  STALE
+  UNKNOWN
+}
+
+enum AuditActorType {
+  STAFF
+  PASSENGER
+  SYSTEM
+  INTEGRATION
+}
+
+// ── Identity ───────────────────────────────────────────────────────────────
+
+model User {
+  id              String     @id @default(uuid()) @db.Uuid
+  phone           String     @unique
+  phoneVerifiedAt DateTime?
+  email           String?    @unique
+  displayName     String?
+  preferredLocale String     @default("am")
+  status          UserStatus @default(PENDING_VERIFICATION)
+  lastLoginAt     DateTime?
+
+  passenger     Passenger?
+  staff         Staff?
+  wallet        Wallet?
+  tickets       Ticket[]
+  payments      Payment[]
+  complaints    Complaint[]
+  journeys      Journey[]
+  devices       Device[]
+  notifications Notification[]
+  refreshTokens RefreshToken[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([status])
+}
+
+/// Citizen profile, separate from User so citizen-only fields do not pollute
+/// the staff table.
+model Passenger {
+  id           String      @id @default(uuid()) @db.Uuid
+  userId       String      @unique @db.Uuid
+  user         User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  nationalId   String?     @unique
+  /// Concessions are approved, never self-declared.
+  concessionId String?     @db.Uuid
+  concession   Concession? @relation(fields: [concessionId], references: [id])
+
+  emergencyContactName  String?
+  emergencyContactPhone String?
+
+  isBlocked   Boolean  @default(false)
+  blockReason String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([concessionId])
+}
+
+/// Staff profile. An operator boundary is mandatory: staff may only act on their
+/// own operator's resources unless they hold a bureau or finance role.
+model Staff {
+  id         String    @id @default(uuid()) @db.Uuid
+  userId     String    @unique @db.Uuid
+  user       User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  operatorId String?   @db.Uuid
+  operator   Operator? @relation(fields: [operatorId], references: [id])
+
+  role         StaffRole
+  employeeCode String?   @unique
+  badgeNumber  String?   @unique
+
+  isActive     Boolean  @default(true)
+  hiredAt      DateTime?
+  terminatedAt DateTime?
+
+  /// Privileged staff must complete MFA before high-risk permissions work.
+  mfaEnabled   Boolean  @default(false)
+  mfaSecretEnc String?
+
+  shifts         Shift[]
+  devices        StaffDevice[]
+  validations    TicketValidation[]
+  issuedTickets  Ticket[]        @relation("TicketIssuedBy")
+  cashPayments   Payment[]       @relation("CashCollectedBy")
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([operatorId])
+  @@index([role, isActive])
+}
+
+model Operator {
+  id                String         @id @default(uuid()) @db.Uuid
+  code              String         @unique
+  name              String
+  status            OperatorStatus @default(PENDING)
+  contactPhone      String?
+  contactEmail      String?
+  address           String?
+  licenseNumber     String?        @unique
+  settlementAccount String?
+
+  staff      Staff[]
+  vehicles   Vehicle[]
+  routes     Route[]
+  trips      Trip[]
+  complaints Complaint[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([status])
+}
+
+// ── Mobility ───────────────────────────────────────────────────────────────
+
+model Route {
+  id                     String        @id @default(uuid()) @db.Uuid
+  code                   String
+  name                   String
+  nameAm                 String?
+  mode                   TransportMode
+  operatorId             String        @db.Uuid
+  operator               Operator      @relation(fields: [operatorId], references: [id])
+  isActive               Boolean       @default(true)
+  distanceMeters         Int           @default(0)
+  typicalDurationSeconds Int?
+
+  stops     RouteStop[]
+  trips     Trip[]
+  fareRules FareRule[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([code, operatorId])
+  @@index([mode, isActive])
+}
+
+model Stop {
+  id         String  @id @default(uuid()) @db.Uuid
+  code       String  @unique
+  name       String
+  nameAm     String?
+  latitude   Decimal @db.Decimal(9, 6)
+  longitude  Decimal @db.Decimal(9, 6)
+  zone       String?
+  isActive   Boolean @default(true)
+  hasShelter Boolean @default(false)
+
+  routeStops RouteStop[]
+  stations   Station[]
+
+  @@index([zone])
+}
+
+model RouteStop {
+  id                     String @id @default(uuid()) @db.Uuid
+  routeId                String @db.Uuid
+  route                  Route  @relation(fields: [routeId], references: [id], onDelete: Cascade)
+  stopId                 String @db.Uuid
+  stop                   Stop   @relation(fields: [stopId], references: [id])
+  sequence               Int
+  distanceFromStartMeters Int   @default(0)
+
+  @@unique([routeId, sequence])
+  @@index([stopId])
+}
+
+model Station {
+  id        String  @id @default(uuid()) @db.Uuid
+  code      String  @unique
+  name      String
+  nameAm    String?
+  latitude  Decimal @db.Decimal(9, 6)
+  longitude Decimal @db.Decimal(9, 6)
+  zone      String?
+  stopId    String? @unique @db.Uuid
+  stop      Stop?   @relation(fields: [stopId], references: [id])
+
+  gates              StationGate[]
+  originTrainRoutes  TrainRoute[] @relation("OriginStation")
+  destTrainRoutes    TrainRoute[] @relation("DestinationStation")
+}
+
+model StationGate {
+  id        String   @id @default(uuid()) @db.Uuid
+  stationId String   @db.Uuid
+  station   Station  @relation(fields: [stationId], references: [id], onDelete: Cascade)
+  code      String
+  deviceId  String?  @unique @db.Uuid
+  device    Device?  @relation(fields: [deviceId], references: [id])
+  isActive  Boolean  @default(true)
+
+  @@unique([stationId, code])
+}
+
+model TrainRoute {
+  id                   String  @id @default(uuid()) @db.Uuid
+  code                 String  @unique
+  name                 String
+  originStationId      String  @db.Uuid
+  originStation        Station @relation("OriginStation", fields: [originStationId], references: [id])
+  destinationStationId String  @db.Uuid
+  destinationStation   Station @relation("DestinationStation", fields: [destinationStationId], references: [id])
+  distanceKm           Decimal? @db.Decimal(8, 2)
+}
+
+model Vehicle {
+  id          String        @id @default(uuid()) @db.Uuid
+  code        String        @unique
+  operatorId  String        @db.Uuid
+  operator    Operator      @relation(fields: [operatorId], references: [id])
+  mode        TransportMode
+  make        String?
+  model       String?
+  capacity    Int?
+  status      VehicleStatus @default(ACTIVE)
+
+  /// Flat fare in fils for this vehicle. Used by the vehicle-code flow where
+  /// the passenger scans a QR on the vehicle and pays the published fare.
+  fareFils    Int?
+
+  trips               Trip[]
+  shifts              Shift[]
+  vehicleQrCredentials VehicleQrCredential[]
+  payments            Payment[]
+  tickets             Ticket[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([operatorId, status])
+}
+
+model Driver {
+  id            String  @id @default(uuid()) @db.Uuid
+  userId        String? @unique @db.Uuid
+  licenseNumber String  @unique
+  operatorId    String  @db.Uuid
+  phone         String?
+
+  trips Trip[] @relation("TripDriver")
+}
+
+model Trip {
+  id           String        @id @default(uuid()) @db.Uuid
+  routeId      String        @db.Uuid
+  route        Route         @relation(fields: [routeId], references: [id])
+  vehicleId    String        @db.Uuid
+  vehicle      Vehicle       @relation(fields: [vehicleId], references: [id])
+  driverId     String?       @db.Uuid
+  driver       Driver?       @relation("TripDriver", fields: [driverId], references: [id])
+  operatorId   String        @db.Uuid
+  operator     Operator      @relation(fields: [operatorId], references: [id])
+
+  /// Monotonic per-vehicle sequence; the QR binds a ticket to a specific run.
+  tripSequence       Int
+  direction          String
+  scheduledDeparture DateTime
+  scheduledArrival   DateTime?
+  actualDeparture    DateTime?
+  actualArrival      DateTime?
+  status             TripStatus  @default(SCHEDULED)
+  delaySeconds       Int?
+
+  tickets              Ticket[]
+  validations          TicketValidation[]
+  shifts               Shift[]
+  vehicleQrCredentials VehicleQrCredential[]
+  payments             Payment[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([vehicleId, tripSequence, scheduledDeparture])
+  @@index([routeId, scheduledDeparture])
+  @@index([operatorId, status])
+}
+
+/// Live positions are deliberately NOT the primary transactional store. Writing
+/// 5-second GPS for a whole fleet into the transactional database melts
+/// Postgres. Positions flow device -> broker -> websocket fan-out and are
+/// retained only in a time-series sink. Freshness travels with the reading so
+/// the UI never claims "arriving in 2 min" from a 15-minute-old position.
+model VehiclePosition {
+  id             BigInt        @id @default(autoincrement())
+  vehicleId      String        @db.Uuid
+  latitude       Decimal       @db.Decimal(9, 6)
+  longitude      Decimal       @db.Decimal(9, 6)
+  speedKph       Decimal?      @db.Decimal(5, 2)
+  headingDegrees Decimal?      @db.Decimal(5, 2)
+  tripId         String?       @db.Uuid
+  recordedAt     DateTime
+  freshness      DataFreshness @default(REAL_TIME)
+
+  @@index([vehicleId, recordedAt(sort: Desc)])
+  @@index([tripId, recordedAt(sort: Desc)])
+}
+
+/// "Scan & book" QR shown inside vehicles. Deliberately a distinct credential
+/// type from passenger ticket QR — staff devices must never confuse the two.
+model VehicleQrCredential {
+  id         String   @id @default(uuid()) @db.Uuid
+  vehicleId  String   @db.Uuid
+  vehicle    Vehicle  @relation(fields: [vehicleId], references: [id], onDelete: Cascade)
+  tripId     String?  @db.Uuid
+  trip       Trip?    @relation(fields: [tripId], references: [id])
+  payload    String
+  issuedAt   DateTime @default(now())
+  expiresAt  DateTime
+  revokedAt  DateTime?
+
+  @@index([vehicleId, expiresAt])
+}
+
+// ── Fare engine (I3) ───────────────────────────────────────────────────────
+
+/// A fare rule is never edited in place. Editing creates a new version and
+/// supersedes the old one. This is what makes I3 meaningful — the referenced
+/// row can never change underneath an issued ticket.
+model FareRule {
+  id        String          @id @default(uuid()) @db.Uuid
+  ruleKey   String
+  version   Int             @default(1)
+
+  mode       TransportMode
+  routeId    String?         @db.Uuid
+  route      Route?          @relation(fields: [routeId], references: [id])
+  operatorId String?         @db.Uuid
+
+  originZone        String?
+  destinationZone   String?
+  distanceFromMeters Int?
+  distanceToMeters   Int?
+
+  baseFareFils    Int
+  perKmFils       Int    @default(0)
+  minimumFareFils Int    @default(0)
+  currency        String @default("ETB")
+
+  status         FareRuleStatus @default(DRAFT)
+  effectiveFrom  DateTime
+  effectiveUntil DateTime?
+
+  /// Dual control: a fare change is a high-risk action.
+  createdByStaffId  String?
+  approvedByStaffId String?   @db.Uuid
+  approvedAt        DateTime?
+  changeReason      String?
+
+  fares FareCalculation[]
+
+  createdAt DateTime @default(now())
+
+  @@unique([ruleKey, version])
+  @@index([mode, status, effectiveFrom])
+  @@index([routeId])
+}
+
+/// Concessions are rules, so fare resolution stays one step rather than
+/// ad-hoc discounts scattered through the app.
+model Concession {
+  id               String   @id @default(uuid()) @db.Uuid
+  code             String   @unique
+  name             String
+  nameAm           String?
+  discountPercent  Int      @default(100)
+  requiresProof    Boolean  @default(true)
+  isActive         Boolean  @default(true)
+
+  passengers Passenger[]
+
+  createdAt DateTime @default(now())
+}
+
+/// Immutable record of how a specific fare was computed. Denormalised on
+/// purpose: we store the numbers actually used, so later rule changes cannot
+/// make historical charges unexplainable.
+model FareCalculation {
+  id        String    @id @default(uuid()) @db.Uuid
+  fareRuleId String?  @db.Uuid
+  fareRule   FareRule? @relation(fields: [fareRuleId], references: [id])
+
+  /// Snapshot of rule identity at calculation time.
+  ruleKey     String?
+  ruleVersion Int?
+
+  mode            TransportMode
+  originZone      String?
+  destinationZone String?
+  distanceMeters  Int           @default(0)
+
+  baseFareFils      Int
+  distanceFareFils  Int           @default(0)
+  discountFils      Int           @default(0)
+  totalFareFils     Int
+  currency          String        @default("ETB")
+  concessionCode    String?
+  transferDiscountFils Int        @default(0)
+
+  calculatedAt DateTime  @default(now())
+  quoteToken   String?   @unique
+  expiresAt    DateTime?
+
+  /// The journey this quote was for, when it came from a planner search.
+  /// Nullable because cash/agent sales price a journey that was never planned
+  /// in-app. Present, it lets the purchase endpoint re-read exactly the numbers
+  /// the passenger agreed to rather than trusting the client's amount.
+  journeyId String?  @unique @db.Uuid
+  journey   Journey? @relation(fields: [journeyId], references: [id])
+
+  tickets  Ticket[]
+  payments Payment[]
+
+  @@index([calculatedAt])
+}
+
+model TransferRule {
+  id              String          @id @default(uuid()) @db.Uuid
+  code            String          @unique
+  name            String
+  withinMinutes   Int             @default(60)
+  discountPercent Int             @default(100)
+  maxTransfers    Int             @default(1)
+  appliesToModes  TransportMode[]
+  isActive        Boolean         @default(true)
+  effectiveFrom   DateTime        @default(now())
+}
+
+// ── Payments (I1, I2) ──────────────────────────────────────────────────────
+
+/// Provider registry. Adapter selection is data-driven, so adding CBE Birr or a
+/// bank is configuration rather than a code branch in the fare flow.
+model PaymentProvider {
+  id          String   @id @default(uuid()) @db.Uuid
+  code        String   @unique
+  displayName String
+  isEnabled   Boolean  @default(true)
+  /// Adapter key resolved from a DI registry; keeps credentials out of the DB.
+  adapterKey  String
+  config      Json?
+
+  payments Payment[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Payment {
+  id        String @id @default(uuid()) @db.Uuid
+  reference String @unique
+
+  userId String @db.Uuid
+  user   User   @relation(fields: [userId], references: [id])
+
+  /// I2: DB-level guarantee. Replaying a request with the same key returns this
+  /// row instead of creating a second charge. Not application logic.
+  idempotencyKey String @unique
+
+  amountFils Int
+  currency   String        @default("ETB")
+  method     PaymentMethod
+  status     PaymentStatus @default(CREATED)
+
+  providerId        String?          @db.Uuid
+  provider          PaymentProvider? @relation(fields: [providerId], references: [id])
+  providerReference String?
+  providerPayload   Json?
+
+  fareCalculationId String?         @db.Uuid
+  fareCalculation   FareCalculation? @relation(fields: [fareCalculationId], references: [id])
+
+  /// Vehicle-code payments: the vehicle this payment is for.
+  vehicleId String? @db.Uuid
+  vehicle   Vehicle? @relation(fields: [vehicleId], references: [id])
+
+  /// Vehicle-code payments: the trip this payment is for (optional).
+  tripId String? @db.Uuid
+  trip   Trip?   @relation(fields: [tripId], references: [id])
+
+  /// Vehicle-code payments: how many tickets to issue (one per passenger).
+  quantity Int? @default(1)
+
+  /// Cash/agent sales must point at the staff member and shift, so assisted
+  /// transactions produce the same core records as self-service.
+  collectedByStaffId String?  @db.Uuid
+  collectedBy        Staff?    @relation("CashCollectedBy", fields: [collectedByStaffId], references: [id])
+  shiftId            String?  @db.Uuid
+  shift              Shift?   @relation(fields: [shiftId], references: [id])
+  geoLatitude        Decimal? @db.Decimal(9, 6)
+  geoLongitude       Decimal? @db.Decimal(9, 6)
+
+  confirmedAt   DateTime?
+  failedAt      DateTime?
+  failureCode   String?
+  failureReason String?
+
+  attempts         PaymentAttempt[]
+  refunds          PaymentRefund[]
+  ticket           Ticket?
+  walletTransaction WalletTransaction?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([userId, status])
+  @@index([status, createdAt])
+  @@index([method, createdAt])
+  @@index([vehicleId])
+}
+
+/// Every provider interaction including retries. Provider calls are the least
+/// reliable part of the system; this makes them auditable.
+model PaymentAttempt {
+  id        String  @id @default(uuid()) @db.Uuid
+  paymentId String  @db.Uuid
+  payment   Payment @relation(fields: [paymentId], references: [id], onDelete: Cascade)
+
+  attemptNumber     Int
+  operation         String
+  providerReference String?
+  requestPayload    Json?
+  responsePayload   Json?
+  succeeded         Boolean  @default(false)
+  errorCode         String?
+  errorMessage      String?
+  durationMs        Int?
+
+  createdAt DateTime @default(now())
+
+  @@unique([paymentId, attemptNumber, operation])
+  @@index([paymentId])
+}
+
+/// Webhook deliveries are kept separate from the payment row so duplicate and
+/// out-of-order provider callbacks are visible and idempotently applied.
+model PaymentWebhookEvent {
+  id           String   @id @default(uuid()) @db.Uuid
+  providerCode String
+  eventId      String
+  payload      Json
+  signature    String?
+  receivedAt   DateTime @default(now())
+  processedAt  DateTime?
+  processResult String?
+  isDuplicate  Boolean  @default(false)
+
+  @@unique([providerCode, eventId])
+  @@index([processedAt])
+}
+
+model PaymentRefund {
+  id        String  @id @default(uuid()) @db.Uuid
+  reference String  @unique
+  paymentId String  @db.Uuid
+  payment   Payment @relation(fields: [paymentId], references: [id])
+
+  amountFils Int
+  reason     String
+  status     String  @default("REQUESTED")
+
+  /// Dual control: refunds above a threshold require supervisor approval.
+  approvedByStaffId String? @db.Uuid
+  approvedAt        DateTime?
+  requiresApproval  Boolean  @default(false)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([paymentId])
+}
+
+/// Settlement is separated from collection so finance can reconcile without
+/// touching transactional payment rows.
+model Settlement {
+  id           String   @id @default(uuid()) @db.Uuid
+  reference    String   @unique
+  operatorId   String?  @db.Uuid
+  periodStart  DateTime
+  periodEnd    DateTime
+  grossFils    Int      @default(0)
+  feesFils     Int      @default(0)
+  netFils      Int      @default(0)
+  status       String   @default("DRAFT")
+  approvedByStaffId String? @db.Uuid
+  approvedAt        DateTime?
+  paidAt       DateTime?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([operatorId, periodStart])
+}
+
+// ── Ticketing (I1, I4) ─────────────────────────────────────────────────────
+
+model Ticket {
+  id        String @id @default(uuid()) @db.Uuid
+  reference String @unique
+
+  userId String? @db.Uuid
+  user   User?   @relation(fields: [userId], references: [id])
+
+  status TicketStatus  @default(CREATED)
+  mode   TransportMode
+  tripId String?       @db.Uuid
+  trip   Trip?         @relation(fields: [tripId], references: [id])
+
+  /// I3: mandatory. A ticket without a pinned rule version is not explicable.
+  fareCalculationId String?         @db.Uuid
+  fareCalculation   FareCalculation? @relation(fields: [fareCalculationId], references: [id])
+  fareRuleId        String?         @db.Uuid
+  fareRuleVersion   Int?
+
+  /// I1: the payment authorising this ticket. Issuance is only reachable from
+  /// the PAYMENT_CONFIRMED transition, never from a client redirect.
+  paymentId String?  @unique @db.Uuid
+  payment   Payment? @relation(fields: [paymentId], references: [id])
+
+  issuedByStaffId String? @db.Uuid
+  issuedBy        Staff?   @relation("TicketIssuedBy", fields: [issuedByStaffId], references: [id])
+  shiftId         String? @db.Uuid
+  shift           Shift?  @relation(fields: [shiftId], references: [id])
+
+  /// One journey yields at most one ticket, so this side is unique.
+  journeyId String?  @unique @db.Uuid
+  journey   Journey? @relation(fields: [journeyId], references: [id])
+
+  /// Vehicle-code issuance: the vehicle this ticket was purchased for.
+  vehicleId String? @db.Uuid
+  vehicle   Vehicle? @relation(fields: [vehicleId], references: [id])
+
+  issuedAt           DateTime?
+  expiresAt          DateTime?
+  validatedAt        DateTime?
+  completedAt        DateTime?
+  cancelledAt        DateTime?
+  cancellationReason String?
+
+  credential  QrCredential?
+  validations TicketValidation[]
+  items       TicketItem[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([userId, status])
+  @@index([status, expiresAt])
+  @@index([tripId])
+  @@index([vehicleId])
+}
+
+/// I4 enforced structurally: this table has no fare, user, or route columns.
+/// It stores only a reference, timestamps, a nonce, and a signature. The QR
+/// string rendered to the user is exactly this credential plus the signature.
+model QrCredential {
+  id       String @id @default(uuid()) @db.Uuid
+  ticketId String @unique @db.Uuid
+  ticket   Ticket @relation(fields: [ticketId], references: [id], onDelete: Cascade)
+
+  /// Public key id used to sign — enables rotation without breaking history.
+  keyId     String
+  signature String
+  /// Cryptographically random; makes each credential unique and supports
+  /// replay detection even when two tickets share a timestamp.
+  nonce     String   @unique
+
+  issuedAt DateTime @default(now())
+  expiresAt DateTime
+  revokedAt DateTime?
+  revokedReason String?
+
+  /// Accepted-use counter, for fraud analytics.
+  validationCount Int @default(0)
+
+  @@index([expiresAt])
+  @@index([keyId])
+}
+
+/// A single ride within a possibly multimodal ticket.
+model TicketItem {
+  id          String        @id @default(uuid()) @db.Uuid
+  ticketId    String        @db.Uuid
+  ticket      Ticket        @relation(fields: [ticketId], references: [id], onDelete: Cascade)
+  sequence    Int
+  mode        TransportMode
+  routeId     String?       @db.Uuid
+  tripId      String?       @db.Uuid
+  fromStopId  String?       @db.Uuid
+  toStopId    String?       @db.Uuid
+  fareFils    Int
+  isValidated Boolean       @default(false)
+  validatedAt DateTime?
+
+  @@unique([ticketId, sequence])
+}
+
+/// Append-only, and doubles as the offline reconciliation ledger: an offline
+/// device writes one with syncState=PENDING, and the server resolves it on sync.
+model TicketValidation {
+  id        String @id @default(uuid()) @db.Uuid
+  reference String @unique
+
+  ticketId     String? @db.Uuid
+  ticket       Ticket? @relation(fields: [ticketId], references: [id])
+  credentialId String? @db.Uuid
+
+  outcome      ValidationOutcome
+  reasonDetail String?
+
+  validatedByStaffId String? @db.Uuid
+  validatedBy        Staff?   @relation(fields: [validatedByStaffId], references: [id])
+  deviceId           String? @db.Uuid
+  tripId             String? @db.Uuid
+  trip               Trip?   @relation(fields: [tripId], references: [id])
+
+  /// ONLINE: decided by the server. OFFLINE: decided on-device, then reconciled.
+  isOffline      Boolean  @default(false)
+  deviceSequence BigInt?
+  syncState      String   @default("SYNCED")
+  validatedAt    DateTime @default(now())
+  syncedAt       DateTime?
+
+  geoLatitude  Decimal? @db.Decimal(9, 6)
+  geoLongitude Decimal? @db.Decimal(9, 6)
+
+  createdAt DateTime @default(now())
+
+  @@index([ticketId, validatedAt])
+  @@index([deviceId, syncState])
+  @@index([credentialId])
+}
+
+// ── Devices, keys, shifts ──────────────────────────────────────────────────
+
+/// A registered staff handheld. Device identity is part of the audit trail —
+/// every validation records which physical device produced it.
+model Device {
+  id         String  @id @default(uuid()) @db.Uuid
+  userId     String? @db.Uuid
+  user       User?   @relation(fields: [userId], references: [id])
+  deviceCode String  @unique
+  platform   String
+  appVersion String?
+  osVersion  String?
+  isActive   Boolean @default(true)
+  disabledAt DateTime?
+  disabledReason String?
+
+  /// A revoked device cannot validate offline: its key is rejected at sync and
+  /// its pending queue is quarantined.
+  offlinePublicKeys OfflineKey[]
+
+  gate             StationGate?
+  staffDevice      StaffDevice?
+  registeredAt     DateTime @default(now())
+  lastSeenAt       DateTime?
+
+  @@index([userId])
+}
+
+model StaffDevice {
+  id        String  @id @default(uuid()) @db.Uuid
+  staffId   String  @db.Uuid
+  staff     Staff   @relation(fields: [staffId], references: [id], onDelete: Cascade)
+  deviceId  String  @unique @db.Uuid
+  device    Device  @relation(fields: [deviceId], references: [id], onDelete: Cascade)
+
+  isEnrolled   Boolean  @default(false)
+  lastSyncAt   DateTime?
+  syncCursor   String?
+  pendingCount Int      @default(0)
+  enrolledAt   DateTime?
+  revokedAt    DateTime?
+
+  @@unique([staffId, deviceId])
+}
+
+model OfflineKey {
+  id        String   @id @default(uuid()) @db.Uuid
+  deviceId  String   @db.Uuid
+  device    Device   @relation(fields: [deviceId], references: [id], onDelete: Cascade)
+  publicKey String
+  keyId     String
+  issuedAt  DateTime @default(now())
+  revokedAt DateTime?
+
+  @@index([deviceId, revokedAt])
+}
+
+/// Shift cash reconciliation. Variance against expected cash needs supervisor
+/// sign-off before the shift can close.
+model Shift {
+  id        String  @id @default(uuid()) @db.Uuid
+  reference String  @unique
+  staffId   String  @db.Uuid
+  staff     Staff   @relation(fields: [staffId], references: [id])
+  operatorId String @db.Uuid
+
+  vehicleId String?  @db.Uuid
+  vehicle   Vehicle? @relation(fields: [vehicleId], references: [id])
+  tripId    String?  @db.Uuid
+  trip      Trip?    @relation(fields: [tripId], references: [id])
+
+  status   ShiftStatus @default(OPEN)
+  openedAt DateTime    @default(now())
+  closedAt DateTime?
+
+  openingCashFils Int @default(0)
+  expectedCashFils Int @default(0)
+  declaredCashFils Int?
+  varianceFils     Int?
+
+  approvedByStaffId String? @db.Uuid
+  approvedAt        DateTime?
+  reconciliationNotes String?
+
+  tickets  Ticket[]
+  payments Payment[]
+
+  @@index([staffId, status])
+  @@index([operatorId, openedAt])
+}
+
+// ── Journeys, wallet ───────────────────────────────────────────────────────
+
+/// A planned itinerary. Separate from Ticket: a journey is a plan, a ticket is
+/// money. Linking them converts a plan into a purchase without the app
+/// re-deriving the fare and risking client/server divergence.
+model Journey {
+  id          String  @id @default(uuid()) @db.Uuid
+  userId      String? @db.Uuid
+  user        User?   @relation(fields: [userId], references: [id])
+  originLat   Decimal @db.Decimal(9, 6)
+  originLng   Decimal @db.Decimal(9, 6)
+  originLabel String?
+  destLat     Decimal @db.Decimal(9, 6)
+  destLng     Decimal @db.Decimal(9, 6)
+  destLabel   String?
+
+  departureTime       DateTime
+  preferences         Json?
+  totalFareFils       Int            @default(0)
+  totalDurationSeconds Int
+  walkingMeters       Int            @default(0)
+  transferCount       Int            @default(0)
+
+  legs   JourneyLeg[]
+  ticket Ticket?
+  /// The quote produced for this journey, if one was planned. Back-relation for
+  /// `FareCalculation.journeyId`.
+  fareCalculation FareCalculation?
+
+  createdAt DateTime  @default(now())
+  expiresAt DateTime?
+
+  @@index([userId, createdAt])
+}
+
+model JourneyLeg {
+  id           String @id @default(uuid()) @db.Uuid
+  journeyId    String @db.Uuid
+  journey      Journey @relation(fields: [journeyId], references: [id], onDelete: Cascade)
+  sequence     Int
+  mode         String // BUS | TAXI | TRAIN | WALK
+  routeId      String? @db.Uuid
+  tripId       String? @db.Uuid
+  fromStopId   String? @db.Uuid
+  toStopId     String? @db.Uuid
+  departureTime DateTime?
+  arrivalTime  DateTime?
+  durationSeconds Int
+  distanceMeters Int  @default(0)
+  fareFils     Int    @default(0)
+
+  @@unique([journeyId, sequence])
+}
+
+/// Stored value is a later phase, but the ledger shape is defined now so we
+/// never retrofit double-entry onto live money.
+model Wallet {
+  id          String   @id @default(uuid()) @db.Uuid
+  userId      String   @unique @db.Uuid
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  balanceFils Int      @default(0)
+  currency    String   @default("ETB")
+  isFrozen    Boolean  @default(false)
+  version     Int      @default(0)
+
+  transactions WalletTransaction[]
+
+  updatedAt DateTime @updatedAt
+}
+
+model WalletTransaction {
+  id                String  @id @default(uuid()) @db.Uuid
+  walletId          String  @db.Uuid
+  wallet            Wallet  @relation(fields: [walletId], references: [id], onDelete: Cascade)
+  type              String
+  amountFils        Int
+  balanceAfterFils  Int
+  reference         String  @unique
+  paymentId         String? @unique @db.Uuid
+  payment           Payment? @relation(fields: [paymentId], references: [id])
+  createdAt         DateTime @default(now())
+
+  @@index([walletId, createdAt])
+}
+
+// ── Support, audit, auth ───────────────────────────────────────────────────
+
+/// One support record across app, USSD, agent, and staff channels, so a
+/// passenger who complains in person and by phone has a single thread.
+model Complaint {
+  id          String            @id @default(uuid()) @db.Uuid
+  reference   String            @unique
+  userId      String?           @db.Uuid
+  user        User?             @relation(fields: [userId], references: [id])
+  category    ComplaintCategory
+  priority    Int               @default(3)
+  description String
+  status      ComplaintStatus   @default(OPEN)
+
+  ticketId   String?   @db.Uuid
+  paymentId  String?   @db.Uuid
+  routeId    String?   @db.Uuid
+  operatorId String?   @db.Uuid
+  operator   Operator? @relation(fields: [operatorId], references: [id])
+
+  geoLatitude  Decimal? @db.Decimal(9, 6)
+  geoLongitude Decimal? @db.Decimal(9, 6)
+  channel      String   @default("APP")
+
+  assignedToStaffId String? @db.Uuid
+  resolution        String?
+  resolvedAt        DateTime?
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+
+  @@index([status, priority])
+  @@index([userId])
+}
+
+/// I5: append-only. No update path in the application; corrections are new rows.
+/// Tamper-evidence via a chained hash.
+model AuditEvent {
+  id        BigInt          @id @default(autoincrement())
+  eventId   String          @unique @db.Uuid
+  actorId   String?         @db.Uuid
+  actorType AuditActorType
+  actorRole StaffRole?
+  action    String
+  resourceType String?
+  resourceId   String?
+  timestamp DateTime        @default(now())
+
+  deviceId  String?
+  ipAddress String?
+  userAgent String?
+  oldValue  Json?
+  newValue  Json?
+  reason    String?
+  /// Dual-control linkage for high-risk actions.
+  approvalId         String?
+  approvalByStaffId  String? @db.Uuid
+
+  /// Chained hash makes bulk tampering detectable after the fact.
+  previousHash String?
+  eventHash    String?
+
+  @@index([actorId, timestamp])
+  @@index([resourceType, resourceId])
+  @@index([action, timestamp])
+  @@index([timestamp])
+}
+
+model Notification {
+  id      String  @id @default(uuid()) @db.Uuid
+  userId  String? @db.Uuid
+  user    User?   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  type    String
+  channel String  @default("PUSH")
+  title   String
+  body    String
+  payload Json?
+  isRead  Boolean @default(false)
+  sentAt  DateTime?
+  readAt  DateTime?
+  createdAt DateTime @default(now())
+
+  @@index([userId, isRead])
+}
+
+/// OTP codes are stored only as a hash — a database leak must not yield
+/// usable login codes. The per-challenge salt stops a precomputed table of
+/// six-digit codes from being reversed offline; six digits is only ~1M
+/// possibilities, trivially brute-forceable without one.
+model OtpChallenge {
+  id          String   @id @default(uuid()) @db.Uuid
+  phone       String
+  codeHash    String
+  salt        String
+  attempts    Int      @default(0)
+  maxAttempts Int      @default(5)
+  expiresAt   DateTime
+  consumedAt  DateTime?
+  createdAt   DateTime @default(now())
+
+  @@index([phone, expiresAt])
+  @@index([phone, createdAt])
+}
+
+model RefreshToken {
+  id        String   @id @default(uuid()) @db.Uuid
+  userId    String   @db.Uuid
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  tokenHash String   @unique
+  deviceId  String?
+  expiresAt DateTime
+  revokedAt DateTime?
+  createdAt DateTime @default(now())
+
+  @@index([userId, revokedAt])
+}

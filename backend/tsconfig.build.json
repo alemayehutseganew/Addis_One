@@ -1,0 +1,18 @@
+{
+  "//": "Build config for the server. The main tsconfig also includes prisma/ (for seed.ts and tools), which changes TypeScript's inferred rootDir to the project root and makes it emit dist/src/main.js instead of dist/main.js. Locking rootDir to ./src keeps the server entry point where the start script expects it. prisma/seed.ts is executed through ts-node and is deliberately excluded here.",
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    "rootDir": "./src",
+    "outDir": "./dist",
+    "incremental": true,
+    "tsBuildInfoFile": "./dist/.tsbuildinfo"
+  },
+  "include": ["src/**/*"],
+  "exclude": [
+    "node_modules",
+    "dist",
+    "prisma",
+    "test",
+    "**/*.spec.ts"
+  ]
+}
