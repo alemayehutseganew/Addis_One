@@ -20,6 +20,8 @@ import {
 import { ADMIN_ROLES, SCAN_ROLES, capabilitiesFor } from './policy';
 import { DevLoginGuard } from './dev-login.guard';
 import { OtpService } from './otp.service';
+import { TestLoginGuard } from './test-login.guard';
+import { TestLoginService } from './test-login.service';
 import { TokenService } from './token.service';
 import { PrismaService } from '../../prisma/prisma.service';
 import { UserStatus } from '@prisma/client';
@@ -47,6 +49,16 @@ class RefreshDto {
   @IsString()
   @MinLength(20)
   refreshToken!: string;
+}
+
+class PasswordLoginDto {
+  @IsString()
+  @MinLength(3)
+  username!: string;
+
+  @IsString()
+  @MinLength(4)
+  password!: string;
 }
 
 /**
@@ -147,6 +159,7 @@ export class AuthController {
     private readonly tokens: TokenService,
     private readonly prisma: PrismaService,
     private readonly dev: DevLoginService,
+    private readonly testLogin: TestLoginService,
   ) {}
 
   /**
@@ -293,6 +306,48 @@ export class AuthController {
   @UseGuards(DevLoginGuard)
   async devLogin(@Body() dto: RequestOtpDto) {
     return this.dev.signIn(dto.phone);
+  }
+
+  /**
+   * Temporary fixed-credential login for production field testing.
+   *
+   * Active only when `TEST_LOGIN_ENABLED=true` (404 otherwise). Accepts the
+   * two fixed accounts `passenger/test123` and `staff/test123` (overridable
+   * via TEST_* env vars). Issues the SAME JWT + refresh pair as the OTP flow,
+   * so everything downstream — JwtAuthGuard, StaffGuard, roles, scoping —
+   * is unchanged.
+   *
+   * DELETE this route, TestLoginService, TestLoginGuard, and the TEST_*
+   * env vars once the operator approves SMS delivery.
+   */
+  @Post('password-login')
+  @HttpCode(200)
+  @UseGuards(TestLoginGuard)
+  async passwordLogin(@Body() dto: PasswordLoginDto) {
+    const result = await this.testLogin.signIn(
+      dto.username.trim().toLowerCase(),
+      dto.password,
+    );
+    return {
+      ok: true,
+      accessToken: result.accessToken,
+      refreshToken: result.refreshToken,
+      expiresIn: result.expiresIn,
+      displayName: result.displayName,
+      phone: result.phone,
+      role: result.role,
+    } as const;
+  }
+
+  /**
+   * Whether the temporary test login is armed. Side-effect-free: issues
+   * nothing, so the app can probe it on every sign-in screen without cost.
+   */
+  @Get('password-login')
+  @HttpCode(200)
+  @UseGuards(TestLoginGuard)
+  passwordLoginCapability() {
+    return { enabled: true } as const;
   }
 
   /**

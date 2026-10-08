@@ -7,6 +7,8 @@ import { JwtAuthGuard } from './jwt-auth.guard';
 import { DevLoginGuard } from './dev-login.guard';
 import { OtpService } from './otp.service';
 import { StaffGuard } from './staff.guard';
+import { TestLoginGuard } from './test-login.guard';
+import { TestLoginService } from './test-login.service';
 import { TokenService } from './token.service';
 
 @Module({
@@ -31,6 +33,10 @@ import { TokenService } from './token.service';
     // `@UseGuards`, so Nest resolves it from this module's context and it reads
     // DEV_STAFF_LOGIN itself on every call.
     DevLoginGuard,
+    // Temporary fixed-credential test login (until SMS is approved).
+    // Same shape as DevLoginService: registered always, gated per-call.
+    TestLoginService,
+    TestLoginGuard,
   ],
   exports: [TokenService, JwtAuthGuard, OtpService, StaffGuard],
 })

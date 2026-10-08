@@ -33,6 +33,7 @@
         <domain includeSubdomains="false">192.168.5.178</domain>
         <domain includeSubdomains="false">192.168.7.61</domain>
         <domain includeSubdomains="false">192.168.13.10</domain>
+        <domain includeSubdomains="false">192.168.6.203</domain>
         <domain includeSubdomains="false">10.168.202.175</domain>
     </domain-config>
 </network-security-config>

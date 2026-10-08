@@ -163,6 +163,44 @@ class StaffAuthController extends StateNotifier<StaffAuthState> {
     }
   }
 
+  /// Signs in with the fixed test username + password (until SMS approved).
+  ///
+  /// Mirrors devSignIn: submitting stage, then session load on success.
+  /// A bad username/password surfaces the server's plain message rather than
+  /// a generic fault, so the tester knows to retype instead of retrying OTP.
+  Future<void> passwordLogin(String username, String password) async {
+    if (username.trim().isEmpty || password.isEmpty) {
+      state = state.copyWith(
+        error: 'Enter the test username and password.',
+      );
+      return;
+    }
+
+    state = state.copyWith(
+      stage: StaffAuthStage.submitting,
+      clearError: true,
+    );
+    try {
+      final ok = await _repo.passwordLogin(
+        username.trim().toLowerCase(),
+        password,
+      );
+      if (!ok) {
+        state = state.copyWith(
+          stage: StaffAuthStage.signedOut,
+          error: 'Test sign-in is not available on this server.',
+        );
+        return;
+      }
+      await _onSignedIn();
+    } on ApiException catch (e) {
+      state = state.copyWith(
+        stage: StaffAuthStage.signedOut,
+        error: e.message ?? _friendly(e.failure),
+      );
+    }
+  }
+
   /// Returns to the number entry step without discarding what was typed.
   void backToPhone() {
     state = state.copyWith(stage: StaffAuthStage.signedOut, clearError: true);

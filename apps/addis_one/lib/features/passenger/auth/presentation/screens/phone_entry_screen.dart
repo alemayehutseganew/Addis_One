@@ -32,6 +32,17 @@ class _PhoneEntryScreenState extends ConsumerState<PhoneEntryScreen> {
   /// exists.
   bool _devSignInOffered = false;
 
+  /// Whether the temporary username/password form is shown (until SMS live).
+  ///
+  /// Probed unconditionally — unlike the dev shortcut this is MEANT for
+  /// field-test builds, so no build flag gates it. Fails closed: when the
+  /// server 404s, the OTP flow is simply the only one offered.
+  bool _testLoginOffered = false;
+  final _testUserCtrl = TextEditingController();
+  final _testPassCtrl = TextEditingController();
+  bool _testBusy = false;
+  bool _testObscured = true;
+
   @override
   void initState() {
     super.initState();
@@ -48,11 +59,21 @@ class _PhoneEntryScreenState extends ConsumerState<PhoneEntryScreen> {
             }
           });
     }
+    ref
+        .read(passengerAuthControllerProvider)
+        .passwordLoginAvailable()
+        .then((available) {
+          if (mounted && available) {
+            setState(() => _testLoginOffered = true);
+          }
+        });
   }
 
   @override
   void dispose() {
     _controller.dispose();
+    _testUserCtrl.dispose();
+    _testPassCtrl.dispose();
     super.dispose();
   }
 
@@ -101,6 +122,69 @@ class _PhoneEntryScreenState extends ConsumerState<PhoneEntryScreen> {
                   onPressed: _submit,
                   child: Text(s.continueLabel),
                 ),
+                if (_testLoginOffered) ...[
+                  const SizedBox(height: AppSpacing.lg),
+                  const Divider(),
+                  const SizedBox(height: AppSpacing.sm),
+                  Text(
+                    'Test sign-in (no SMS needed)',
+                    style: theme.textTheme.titleSmall,
+                    textAlign: TextAlign.center,
+                  ),
+                  const SizedBox(height: AppSpacing.xs),
+                  TextField(
+                    controller: _testUserCtrl,
+                    enabled: !_testBusy,
+                    textInputAction: TextInputAction.next,
+                    autocorrect: false,
+                    decoration: const InputDecoration(
+                      labelText: 'Username',
+                      hintText: 'passenger',
+                      prefixIcon: Icon(Icons.person_outline),
+                    ),
+                  ),
+                  const SizedBox(height: AppSpacing.sm),
+                  TextField(
+                    controller: _testPassCtrl,
+                    enabled: !_testBusy,
+                    obscureText: _testObscured,
+                    textInputAction: TextInputAction.done,
+                    onSubmitted: (_) => _testSignIn(),
+                    decoration: InputDecoration(
+                      labelText: 'Password',
+                      prefixIcon: const Icon(Icons.lock_outline),
+                      suffixIcon: IconButton(
+                        icon: Icon(
+                          _testObscured
+                              ? Icons.visibility_outlined
+                              : Icons.visibility_off_outlined,
+                        ),
+                        onPressed: () => setState(
+                          () => _testObscured = !_testObscured,
+                        ),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: AppSpacing.sm),
+                  OutlinedButton(
+                    onPressed: _testBusy ? null : _testSignIn,
+                    child: _testBusy
+                        ? const SizedBox(
+                            height: 20,
+                            width: 20,
+                            child: CircularProgressIndicator(strokeWidth: 2),
+                          )
+                        : const Text('Sign in with test account'),
+                  ),
+                  Text(
+                    'Temporary until SMS delivery is approved. '
+                    'Use passenger / test123.',
+                    style: theme.textTheme.bodySmall?.copyWith(
+                      color: AppColors.inkMuted,
+                    ),
+                    textAlign: TextAlign.center,
+                  ),
+                ],
                 if (_devSignInOffered) ...[
                   const SizedBox(height: AppSpacing.md),
                   TextButton(
@@ -122,6 +206,30 @@ class _PhoneEntryScreenState extends ConsumerState<PhoneEntryScreen> {
         ),
       ),
     );
+  }
+
+  /// Signs in with the fixed test username + password.
+  Future<void> _testSignIn() async {
+    setState(() {
+      _testBusy = true;
+      _error = null;
+    });
+    final controller = ref.read(passengerAuthControllerProvider);
+    final session = await controller.passwordLogin(
+      _testUserCtrl.text,
+      _testPassCtrl.text,
+    );
+    if (!mounted) return;
+    setState(() {
+      _testBusy = false;
+      final state = controller.state;
+      _error = (session == null && state is PassengerAuthFailure)
+          ? state.message
+          : null;
+    });
+    if (session != null && mounted) {
+      context.go(Routes.passengerHome);
+    }
   }
 
   /// Signs in without an OTP, for field testing.

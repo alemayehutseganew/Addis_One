@@ -27,6 +27,21 @@ abstract interface class AuthGateway {
   /// apart. This answers the capability question directly and issues nothing.
   Future<bool> devSignInAvailable() async => false;
 
+  /// Whether the temporary fixed-credential test login is armed.
+  ///
+  /// Probes GET /auth/password-login, which 404s unless TEST_LOGIN_ENABLED
+  /// is on. Allowed to fail closed: a screen that cannot ask simply does not
+  /// show the username/password form.
+  Future<bool> passwordLoginAvailable() async => false;
+
+  /// Signs in with the fixed test username + password.
+  Future<AuthSession> passwordLogin(String username, String password) async {
+    throw const AuthGatewayException(
+      AuthErrorKind.unknown,
+      'Test sign-in is not available',
+    );
+  }
+
   /// Signs in without an OTP. Development only.
   ///
   /// Given a concrete default rather than being abstract so the fakes in
@@ -253,6 +268,46 @@ class PassengerAuthController {
   Future<bool> devSignInAvailable() async {
     try {
       return await _gateway.devSignInAvailable();
+    } on Object {
+      return false;
+    }
+  }
+
+  /// Signs in with the fixed test username + password (until SMS approved).
+  ///
+  /// Returns null and emits a failure on bad credentials, mirroring devSignIn.
+  Future<AuthSession?> passwordLogin(String username, String password) async {
+    if (username.trim().isEmpty || password.isEmpty) {
+      _emit(const PassengerAuthFailure(
+        'Enter the test username and password',
+        canRetry: true,
+      ));
+      return null;
+    }
+
+    _emit(PassengerAuthVerifying(_currentPhone ?? '', _attempts));
+    try {
+      final session = await _gateway.passwordLogin(
+        username.trim().toLowerCase(),
+        password,
+      );
+      _attempts = 0;
+      _sentAt = null;
+      _emit(PassengerAuthAuthenticated(
+        phoneE164: session.phoneE164,
+        displayName: session.displayName,
+      ));
+      return session;
+    } on AuthGatewayException catch (e) {
+      _emit(_mapError(e));
+      return null;
+    }
+  }
+
+  /// Whether the username/password form should be offered at all.
+  Future<bool> passwordLoginAvailable() async {
+    try {
+      return await _gateway.passwordLoginAvailable();
     } on Object {
       return false;
     }

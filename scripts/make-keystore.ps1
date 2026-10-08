@@ -1,10 +1,11 @@
-$android = 'c:\Users\alexo\Desktop\File\Code\AddisTransport\apps\passenger\android'
+$android = 'c:\Users\alexo\Desktop\File\Code\AddisTransport\apps\addis_one\android'
 $out = "$env:TEMP\addis_keystore.txt"
 $lines = @()
 $lines += "=== keystore generation @ $(Get-Date -Format o) ==="
 
 $keystore = Join-Path $android 'app\addis-one-release.jks'
 $keyprops  = Join-Path $android 'key.properties'
+
 
 # Demo/pilot signing credentials. A REAL production key must be generated in a
 # secure environment and never committed; the passwords below are placeholders

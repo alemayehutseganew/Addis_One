@@ -152,6 +152,67 @@ class DioAuthGateway implements AuthGateway {
     }
   }
 
+  /// Temporary fixed-credential login (until SMS approved).
+  ///
+  /// The server answers 401 for bad credentials and 404 when the route is
+  /// not armed. Both map through _toGatewayError: 404 becomes "unknown" with
+  /// the server's message, which the screen shows only if the form was
+  /// offered — and the form is offered only after the capability probe, so a
+  /// 404 here means the flag was turned off mid-session, not a bug.
+  @override
+  Future<bool> passwordLoginAvailable() async {
+    try {
+      final json = await _api.getJson('/auth/password-login');
+      return json['enabled'] == true;
+    } on ApiException {
+      return false;
+    }
+  }
+
+  @override
+  Future<AuthSession> passwordLogin(String username, String password) async {
+    try {
+      final json = await _api.postJson('/auth/password-login', body: {
+        'username': username,
+        'password': password,
+      });
+
+      if (json['ok'] != true || json['accessToken'] is! String) {
+        throw const AuthGatewayException(
+          AuthErrorKind.invalidCode,
+          'Invalid username or password',
+        );
+      }
+
+      final phone = json['phone'] as String? ?? '';
+      final session = AuthSession(
+        accessToken: json['accessToken'] as String,
+        refreshToken: json['refreshToken'] as String?,
+        phoneE164: phone,
+        displayName: json['displayName'] as String?,
+      );
+      await _tokens.save(
+        accessToken: session.accessToken,
+        refreshToken: session.refreshToken,
+        phone: phone.isEmpty ? null : phone,
+      );
+      return session;
+    } on ApiException catch (e) {
+      // A 401 here is "wrong username/password", not "wrong OTP code" — but
+      // AuthErrorKind has no password case, and invalidCode already renders
+      // the right message ("Incorrect code…" is remapped below by the
+      // controller? No: _mapError turns invalidCode into "Incorrect code").
+      // So translate explicitly instead of reusing _toGatewayError.
+      if (e.failure == ApiFailure.unauthorized) {
+        throw const AuthGatewayException(
+          AuthErrorKind.unknown,
+          'Invalid username or password',
+        );
+      }
+      throw _toGatewayError(e);
+    }
+  }
+
   static AuthGatewayException _toGatewayError(ApiException e) {
     switch (e.failure) {
       case ApiFailure.validation:

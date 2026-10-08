@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 
 import '../../../../../app/providers.dart';
 import '../../../../../app/router.dart';
+import '../../../../../app/theme.dart';
 import '../../../../../core/config/app_config.dart';
 import '../../domain/staff_auth_state.dart';
 import '../widgets/code_step.dart';
@@ -33,6 +34,15 @@ class _SignInScreenState extends ConsumerState<SignInScreen> {
   /// and then disappearing — a button that appears and vanishes reads as a bug.
   bool? _devAvailable;
 
+  /// Whether the temporary username/password form is shown (until SMS live).
+  ///
+  /// Null until answered, same no-flash rule as [_devAvailable]. Probed
+  /// unconditionally: this form is MEANT for field-test builds.
+  bool? _testLoginAvailable;
+  final _testUserCtrl = TextEditingController();
+  final _testPassCtrl = TextEditingController();
+  bool _testObscured = true;
+
   @override
   void initState() {
     super.initState();
@@ -46,6 +56,9 @@ class _SignInScreenState extends ConsumerState<SignInScreen> {
     if (AppConfig.enableDevSignIn) {
       _probeDevSignIn();
     }
+    // The test login IS meant for field builds, so this probe is
+    // unconditional — but still fails closed when the server 404s.
+    _probeTestLogin();
 
     // A session can already exist by the time this screen mounts: bootstrap()
     // runs from launch and may finish while the role picker is still on
@@ -68,10 +81,19 @@ class _SignInScreenState extends ConsumerState<SignInScreen> {
     setState(() => _devAvailable = available);
   }
 
+  Future<void> _probeTestLogin() async {
+    final available =
+        await ref.read(staffRepositoryProvider).passwordLoginAvailable();
+    if (!mounted) return;
+    setState(() => _testLoginAvailable = available);
+  }
+
   @override
   void dispose() {
     _phoneCtrl.dispose();
     _codeCtrl.dispose();
+    _testUserCtrl.dispose();
+    _testPassCtrl.dispose();
     _phoneFocus.dispose();
     _codeFocus.dispose();
     super.dispose();
@@ -148,6 +170,83 @@ class _SignInScreenState extends ConsumerState<SignInScreen> {
                       onPressed: () => ref
                           .read(staffAuthControllerProvider.notifier)
                           .devSignIn(_phoneCtrl.text.trim()),
+                    ),
+                  ],
+                  if (_testLoginAvailable == true) ...[
+                    const SizedBox(height: 20),
+                    const Divider(),
+                    const SizedBox(height: 12),
+                    const Text(
+                      'Test sign-in (no SMS needed)',
+                      textAlign: TextAlign.center,
+                      style: TextStyle(
+                        fontSize: 14,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                    const SizedBox(height: 12),
+                    TextField(
+                      controller: _testUserCtrl,
+                      enabled: !busy,
+                      textInputAction: TextInputAction.next,
+                      autocorrect: false,
+                      decoration: const InputDecoration(
+                        labelText: 'Username',
+                        hintText: 'staff',
+                        prefixIcon: Icon(Icons.person_outline),
+                      ),
+                    ),
+                    const SizedBox(height: 12),
+                    TextField(
+                      controller: _testPassCtrl,
+                      enabled: !busy,
+                      obscureText: _testObscured,
+                      textInputAction: TextInputAction.done,
+                      onSubmitted: (_) => ref
+                          .read(staffAuthControllerProvider.notifier)
+                          .passwordLogin(
+                            _testUserCtrl.text,
+                            _testPassCtrl.text,
+                          ),
+                      decoration: InputDecoration(
+                        labelText: 'Password',
+                        prefixIcon: const Icon(Icons.lock_outline),
+                        suffixIcon: IconButton(
+                          icon: Icon(
+                            _testObscured
+                                ? Icons.visibility_outlined
+                                : Icons.visibility_off_outlined,
+                          ),
+                          onPressed: () => setState(
+                            () => _testObscured = !_testObscured,
+                          ),
+                        ),
+                      ),
+                    ),
+                    const SizedBox(height: 12),
+                    OutlinedButton.icon(
+                      onPressed: busy
+                          ? null
+                          : () => ref
+                              .read(staffAuthControllerProvider.notifier)
+                              .passwordLogin(
+                                _testUserCtrl.text,
+                                _testPassCtrl.text,
+                              ),
+                      icon: const Icon(Icons.key_outlined, size: 20),
+                      label: Text(busy ? 'Signing in…' : 'Sign in as staff/test123'),
+                      style: OutlinedButton.styleFrom(
+                        foregroundColor: StaffColors.green,
+                        side: const BorderSide(color: StaffColors.green),
+                        minimumSize: const Size.fromHeight(48),
+                      ),
+                    ),
+                    const SizedBox(height: 8),
+                    const Text(
+                      'Temporary until SMS delivery is approved.',
+                      textAlign: TextAlign.center,
+                      style: TextStyle(
+                          fontSize: 12, color: AppColors.verdictUnknown),
                     ),
                   ],
                   const SizedBox(height: 24),

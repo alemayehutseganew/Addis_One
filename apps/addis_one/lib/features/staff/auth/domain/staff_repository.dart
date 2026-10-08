@@ -90,6 +90,45 @@ class StaffRepository {
     }
   }
 
+  /// Whether the temporary fixed-credential test login is armed.
+  ///
+  /// Probes GET /auth/password-login, which 404s unless TEST_LOGIN_ENABLED
+  /// is on. Fails closed: the screen simply does not show the form.
+  Future<bool> passwordLoginAvailable() async {
+    try {
+      final data = await _api.getJson('/auth/password-login');
+      return data['enabled'] == true;
+    } on ApiException {
+      return false;
+    }
+  }
+
+  /// Signs in with the fixed test username + password (until SMS approved).
+  ///
+  /// Returns false when the server does not expose the route; throws a
+  /// validation ApiException with a plain message on bad credentials so the
+  /// controller can show it directly.
+  Future<bool> passwordLogin(String username, String password) async {
+    try {
+      final data = await _api.postJson('/auth/password-login', body: {
+        'username': username,
+        'password': password,
+      });
+      if (data['ok'] != true || data['accessToken'] is! String) return false;
+      await _persist(data, phone: (data['phone'] as String?) ?? '');
+      return true;
+    } on ApiException catch (e) {
+      if (e.failure == ApiFailure.notFound) return false;
+      if (e.failure == ApiFailure.unauthorized) {
+        throw const ApiException(
+          ApiFailure.validation,
+          message: 'Invalid username or password.',
+        );
+      }
+      rethrow;
+    }
+  }
+
   Future<void> _persist(
     Map<String, dynamic> data, {
     required String phone,
