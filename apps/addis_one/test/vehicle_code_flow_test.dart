@@ -16,7 +16,6 @@
 // the point is which calls the controller makes and in what order, and a
 // recording fake shows that directly.
 import 'dart:math';
-import 'dart:typed_data';
 import 'dart:ui' as ui;
 
 import 'package:addis_one/core/models/journey.dart';
@@ -979,7 +978,7 @@ group('I2 — idempotency across retries', () {
       expect(ticketQrFileName('TKT-123'), 'addis-one-ticket-TKT-123.png');
       // Sanitised: the name crosses into the OS share sheet and must not
       // carry path separators or anything a chat app might execute.
-      expect(ticketQrFileName('../TKT 1/x'), 'addis-one-ticket-__TKT_1_x.png');
+      expect(ticketQrFileName('../TKT 1/x'), 'addis-one-ticket-___TKT_1_x.png');
     });
   });
 

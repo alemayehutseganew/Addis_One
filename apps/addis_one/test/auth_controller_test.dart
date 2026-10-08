@@ -13,6 +13,8 @@ class FakeAuthGateway implements AuthGateway {
     this.errorOnRequest,
     this.devEnabled = false,
     this.errorOnDevSignIn,
+    this.passwordLoginEnabled = false,
+    this.errorOnPasswordLogin,
   });
 
   bool requestSucceeds;
@@ -24,9 +26,14 @@ class FakeAuthGateway implements AuthGateway {
   bool devEnabled;
   AuthErrorKind? errorOnDevSignIn;
 
+  /// Whether the test username/password login is enabled.
+  bool passwordLoginEnabled;
+  AuthErrorKind? errorOnPasswordLogin;
+
   final List<String> requestedPhones = [];
   final List<List<String>> verifyCalls = [];
   final List<String> devSignInPhones = [];
+  final List<String> passwordLoginCalls = [];
   int signOutCalls = 0;
 
   @override
@@ -60,6 +67,35 @@ class FakeAuthGateway implements AuthGateway {
 
   @override
   Future<bool> devSignInAvailable() async => devEnabled;
+
+  @override
+  Future<bool> passwordLoginAvailable() async => passwordLoginEnabled;
+
+  @override
+  Future<AuthSession> passwordLogin(String username, String password) async {
+    passwordLoginCalls.add('$username:$password');
+    if (!passwordLoginEnabled) {
+      throw const AuthGatewayException(
+        AuthErrorKind.unknown,
+        'Test sign-in is not available',
+      );
+    }
+    if (errorOnPasswordLogin != null) {
+      throw AuthGatewayException(errorOnPasswordLogin!);
+    }
+    if (username != 'passenger' && username != 'staff') {
+      throw const AuthGatewayException(AuthErrorKind.invalidCode);
+    }
+    if (password != 'test123') {
+      throw const AuthGatewayException(AuthErrorKind.invalidCode);
+    }
+    return AuthSession(
+      accessToken: 'test-token-$username',
+      refreshToken: 'test-refresh',
+      phoneE164: username == 'passenger' ? '+251900000001' : '+251900000002',
+      displayName: username == 'passenger' ? 'Test Passenger' : 'Test Staff',
+    );
+  }
 
   @override
   Future<AuthSession> devSignIn(String phoneE164) async {
