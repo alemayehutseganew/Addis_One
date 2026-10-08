@@ -1,0 +1,78 @@
+# Production docker-compose for local testing and deployment reference
+# 
+# For actual production deployment, use managed services:
+# - PostgreSQL: Railway, Render, Neon, Supabase, or Fly Postgres
+# - Redis: Railway, Render, Upstash, or Fly Redis
+#
+# This file is for local production-like testing only.
+
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: at-postgres-prod
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-addis}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: ${POSTGRES_DB:-addis_one}
+      POSTGRES_INITDB_ARGS: "--locale=C.UTF-8 --encoding=UTF8"
+    ports:
+      - "5433:5432"
+    volumes:
+      - addis-pgdata-prod:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-addis} -d ${POSTGRES_DB:-addis_one}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  redis:
+    image: redis:7-alpine
+    container_name: at-redis-prod
+    restart: unless-stopped
+    ports:
+      - "6380:6379"
+    volumes:
+      - addis-redisdata-prod:/data
+    command: ["redis-server", "--appendonly", "yes", "--requirepass", "${REDIS_PASSWORD}"]
+    healthcheck:
+      test: ["CMD", "redis-cli", "-a", "${REDIS_PASSWORD}", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  backend:
+    build:
+      context: ../backend
+      dockerfile: Dockerfile
+    container_name: at-backend-prod
+    restart: unless-stopped
+    environment:
+      NODE_ENV: production
+      PORT: 3000
+      API_PREFIX: api/v1
+      DATABASE_URL: postgresql://${POSTGRES_USER:-addis}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB:-addis_one}?schema=public
+      REDIS_URL: redis://:${REDIS_PASSWORD}@redis:6379
+      JWT_ACCESS_SECRET: ${JWT_ACCESS_SECRET}
+      JWT_REFRESH_SECRET: ${JWT_REFRESH_SECRET}
+      OTP_DEV_ECHO: "false"
+      TEST_LOGIN_ENABLED: "true"
+      TEST_PASSENGER_USERNAME: passenger
+      TEST_PASSENGER_PASSWORD: test123
+      TEST_STAFF_USERNAME: staff
+      TEST_STAFF_PASSWORD: test123
+      CORS_ORIGINS: "*"
+      QR_SIGNING_KEY_ID: ${QR_SIGNING_KEY_ID:-prod-key-1}
+      QR_PRIVATE_KEY_BASE64: ${QR_PRIVATE_KEY_BASE64}
+      PAYMENT_DEFAULT_PROVIDER: MOCK
+    ports:
+      - "3000:3000"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+
+volumes:
+  addis-pgdata-prod:
+  addis-redisdata-prod:
